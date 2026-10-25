@@ -102,7 +102,7 @@ function viewAluno(){
   var abas = AL.id ? [["hist", "Histórico"], ["evo", "Evolução"], ["vol", "Volume"], ["treino", "Treino"]] : [["treino", "Treino"]];
   app.innerHTML = topBar(AL.id ? "Aluno" : "Novo aluno", esc(AL.nome || "Novo aluno")) + '<main>' +
     '<button class="lnk" data-act="voltar" type="button">← Meus alunos</button>' +
-    (AL.codigo ? '<div class="acts"><button data-act="copy" data-c="' + esc(AL.codigo) + '">Copiar link</button><a class="lnkbtn" href="' + esc(linkAluno(AL.codigo)) + '" target="_blank" rel="noopener">Ver como aluno</a><button data-act="codigo">Gerar novo link</button></div>' +
+    (AL.codigo ? '<div class="acts"><button data-act="copy" data-c="' + esc(AL.codigo) + '">Copiar link</button><a class="lnkbtn" href="' + esc(linkAluno(AL.codigo)) + '">Ver como aluno</a><button data-act="codigo">Gerar novo link</button></div>' +
       '<label class="fl" hidden id="lkw">Link do aluno<input id="lk" readonly></label>' : '') +
     '<div class="tabs">' + abas.map(function(a){ return '<button type="button" data-aba="' + a[0] + '" aria-pressed="' + (ABA === a[0]) + '">' + a[1] + '</button>'; }).join("") + '</div>' +
     '<div id="conteudo"></div></main>' +
