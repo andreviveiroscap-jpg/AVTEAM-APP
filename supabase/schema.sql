@@ -66,6 +66,15 @@ create table if not exists public.series (
   tipo            text not null default 'trabalho'
 );
 
+-- Observação do aluno sobre um exercício, em um treino finalizado.
+create table if not exists public.notas (
+  id              uuid primary key default gen_random_uuid(),
+  sessao_id       uuid not null references public.sessoes (id) on delete cascade,
+  exercicio_id    uuid references public.exercicios (id) on delete set null,
+  exercicio_nome  text not null default '',
+  texto           text not null check (length(texto) between 1 and 500)
+);
+
 -- Colunas acrescentadas depois da primeira versão (para bancos já criados).
 alter table public.exercicios add column if not exists series_cfg jsonb;
 alter table public.series     add column if not exists tipo text not null default 'trabalho';
@@ -76,6 +85,7 @@ create index if not exists exercicios_treino_idx   on public.exercicios (treino_
 create index if not exists sessoes_aluno_data_idx  on public.sessoes (aluno_id, data desc);
 create index if not exists series_sessao_idx       on public.series (sessao_id);
 create index if not exists series_exercicio_idx    on public.series (exercicio_id);
+create index if not exists notas_sessao_idx        on public.notas (sessao_id);
 
 -- ---------------------------------------------------------------------------
 -- Regras de acesso (RLS)
@@ -88,9 +98,10 @@ alter table public.treinos    enable row level security;
 alter table public.exercicios enable row level security;
 alter table public.sessoes    enable row level security;
 alter table public.series     enable row level security;
+alter table public.notas      enable row level security;
 
-revoke all on public.alunos, public.treinos, public.exercicios, public.sessoes, public.series from anon;
-grant select, insert, update, delete on public.alunos, public.treinos, public.exercicios, public.sessoes, public.series to authenticated;
+revoke all on public.alunos, public.treinos, public.exercicios, public.sessoes, public.series, public.notas from anon;
+grant select, insert, update, delete on public.alunos, public.treinos, public.exercicios, public.sessoes, public.series, public.notas to authenticated;
 
 drop policy if exists treinador_alunos on public.alunos;
 create policy treinador_alunos on public.alunos for all to authenticated
@@ -116,6 +127,13 @@ create policy treinador_sessoes on public.sessoes for all to authenticated
 
 drop policy if exists treinador_series on public.series;
 create policy treinador_series on public.series for all to authenticated
+  using (exists (select 1 from public.sessoes s join public.alunos a on a.id = s.aluno_id
+                 where s.id = sessao_id and a.treinador_id = auth.uid()))
+  with check (exists (select 1 from public.sessoes s join public.alunos a on a.id = s.aluno_id
+                      where s.id = sessao_id and a.treinador_id = auth.uid()));
+
+drop policy if exists treinador_notas on public.notas;
+create policy treinador_notas on public.notas for all to authenticated
   using (exists (select 1 from public.sessoes s join public.alunos a on a.id = s.aluno_id
                  where s.id = sessao_id and a.treinador_id = auth.uid()))
   with check (exists (select 1 from public.sessoes s join public.alunos a on a.id = s.aluno_id
@@ -191,6 +209,8 @@ $$;
 -- p_id é gerado pelo aparelho do aluno: se o envio for repetido (internet
 -- caiu, toque duplo), a sessão não é gravada duas vezes.
 -- p_series: [{"exercicio_id": "...", "numero": 1, "carga": 20, "repeticoes": 10}, ...]
+-- Observações do aluno vêm na mesma lista, sem "numero":
+-- {"exercicio_id": "...", "nota": "senti o ombro"}
 create or replace function public.aluno_finalizar(p_codigo text, p_id uuid, p_treino uuid, p_data timestamptz, p_series json)
 returns uuid
 language plpgsql
@@ -242,6 +262,13 @@ begin
   -- Só aceita exercícios que pertencem a este treino.
   join exercicios e on e.id = x.exercicio_id and e.treino_id = p_treino
   where x.carga is not null or x.repeticoes is not null;
+
+  insert into notas (sessao_id, exercicio_id, exercicio_nome, texto)
+  select distinct on (e.id) p_id, e.id, e.nome, left(trim(r.nota), 500)
+  from json_array_elements(p_series) as j(v),
+       json_to_record(j.v) as r(exercicio_id uuid, nota text)
+  join exercicios e on e.id = r.exercicio_id and e.treino_id = p_treino
+  where trim(coalesce(r.nota, '')) <> '';
 
   return p_id;
 end;
@@ -319,6 +346,10 @@ as $$
             'numero', se.numero, 'tipo', se.tipo, 'carga', se.carga, 'repeticoes', se.repeticoes
           ) order by se.posicao, se.numero)
           from series se where se.sessao_id = s.id
+        ), '[]'::json),
+        'notas', coalesce((
+          select json_agg(json_build_object('exercicio_id', n.exercicio_id, 'exercicio', n.exercicio_nome, 'texto', n.texto))
+          from notas n where n.sessao_id = s.id
         ), '[]'::json)
       ) order by s.data desc)
       from (select * from sessoes where aluno_id = a.id order by data desc limit 400) s

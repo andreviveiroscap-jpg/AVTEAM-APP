@@ -27,6 +27,7 @@ function sets(e){
   for (var j = 0; j < n; j++) if (!c[j]) c[j] = {kg:"", reps:"", done:false};
   return c.slice(0, n);
 }
+function notas(){ var t = CUR[W.id] = CUR[W.id] || {}; return t.__notas = t.__notas || {}; }
 function comoSeries(e){ return sets(e).map(function(x){ return {carga:x.kg, repeticoes:x.reps}; }); }
 function grpTxt(){
   var g = {}, o = [];
@@ -43,7 +44,7 @@ function prevTxt(e, j){
 function aplicaPendentes(d){
   PEND.forEach(function(p){
     var por = {};
-    p.series.forEach(function(s){ (por[s.exercicio_id] = por[s.exercicio_id] || []).push(s); });
+    p.series.forEach(function(s){ if (s.numero) (por[s.exercicio_id] = por[s.exercicio_id] || []).push(s); });
     Object.keys(por).forEach(function(id){ d.ultima[id] = por[id]; });
     d.anterior[p.treino] = {data:p.data, tonelagem:tonSeries(p.series)};
   });
@@ -102,10 +103,13 @@ function renderLista(){
   if (ABERTO === null) ABERTO = W.ex.length ? (concluido(W.ex[0]) ? proximo(0) : 0) : -1;
   $("lista").innerHTML = W.ex.length ? W.ex.map(function(e, i){
     var cfg = cfgDe(e), aberto = i === ABERTO, feito = concluido(e);
+    var nota = notas()[e.id] || "";
     var h = '<section class="ex acc' + (aberto ? " aberto" : "") + (feito ? " feito" : "") + '" id="ex' + i + '">' +
-      '<button class="exh" type="button" data-abre="' + i + '" aria-expanded="' + aberto + '"><span class="exn"><h2>' + esc(e.nome) + '</h2>' +
-      '<span class="meta">' + cfg.length + ' séries' + (e.grupo ? ' · ' + esc(e.grupo) : '') + ' · volume: <span id="ev' + i + '"></span></span></span>' +
-      '<span class="exst" id="es' + i + '"></span></button>';
+      '<button class="exh" type="button" data-abre="' + i + '" aria-expanded="' + aberto + '"><span class="exst" id="es' + i + '"></span>' +
+      '<span class="exn"><h2>' + esc(e.nome) + '</h2>' +
+      '<span class="meta">' + esc(resumoSeries(cfg)) + '</span>' +
+      '<span class="meta">' + (e.grupo ? esc(e.grupo) + ' · ' : '') + 'volume: <span id="ev' + i + '"></span>' + (nota ? ' · 💬 observação' : '') + '</span></span>' +
+      '<span class="seta" aria-hidden="true">' + (aberto ? "▾" : "▸") + '</span></button>';
     if (!aberto) return h + '</section>';
     return h + '<div class="row s h"><span>Série</span><span>Carga (kg)</span><span>Reps</span><span></span></div>' +
       sets(e).map(function(x, j){
@@ -117,6 +121,7 @@ function renderLista(){
           '<input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" placeholder="' + esc(c.reps || "") + '" value="' + esc(x.reps) + '">' +
           '<button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>';
       }).join("") +
+      '<label class="obs">Observação (opcional)<textarea class="nota" data-e="' + e.id + '" rows="2" maxlength="500" placeholder="Como foi? Dor, ajuste do aparelho, carga…">' + esc(nota) + '</textarea></label>' +
       '<button class="sm conc" type="button" data-act="concluir" data-i="' + i + '">Concluir exercício</button></section>';
   }).join("") +
     // Também no fim da lista: barras de outros sites (como a do Netlify)
@@ -146,7 +151,8 @@ function progress(){
   W.ex.forEach(function(e, i){
     $("ev" + i).textContent = fmtS(tonSeries(comoSeries(e)));
     var s = sets(e), f = s.filter(function(x){ return x.done; }).length;
-    $("es" + i).innerHTML = f === s.length ? '<span class="ok">✓</span>' : f + "/" + s.length;
+    var el = $("es" + i); el.textContent = f === s.length ? "✓" : String(i + 1); el.classList.toggle("ok", f === s.length);
+    el.setAttribute("aria-label", f + " de " + s.length + " séries feitas");
   });
   $("grp").innerHTML = grpTxt().map(function(s){ return "<span>" + esc(s) + "</span>"; }).join("");
 }
@@ -159,8 +165,10 @@ function finalizar(){
       if (c == null && isNaN(r)) return;
       series.push({exercicio_id:e.id, numero:j + 1, carga:c, repeticoes:isNaN(r) ? null : r});
     });
+    var n = (notas()[e.id] || "").trim();
+    if (n) series.push({exercicio_id:e.id, nota:n});
   });
-  if (!series.length) { toast("Preencha a carga ou as repetições de pelo menos uma série."); return; }
+  if (!series.some(function(s){ return s.numero; })) { toast("Preencha a carga ou as repetições de pelo menos uma série."); return; }
   PEND.push({id:novoId(), treino:W.id, data:new Date().toISOString(), series:series});
   guarda(kPend(), PEND);
   aplicaPendentes(DADOS);
@@ -197,6 +205,7 @@ function resumoWhatsApp(){
   W.ex.forEach(function(e){
     var l = sets(e).map(function(x, j){ return x.kg ? (j + 1) + ") " + x.kg + " kg × " + (x.reps || "?") : null; }).filter(Boolean);
     txt += "\n" + e.nome + ": " + (l.length ? l.join(" | ") : "não feito");
+    var n = (notas()[e.id] || "").trim(); if (n) txt += "\n  Obs.: " + n;
     cur = cur.concat(comoSeries(e));
   });
   return txt + "\n\nVolume total: " + fmt(tonSeries(cur)) + "\n" + grpTxt().join(" | ");
@@ -212,7 +221,9 @@ function whatsapp(){
 }
 
 app.addEventListener("input", function(ev){
-  var t = ev.target, r = t.closest(".row"); if (!r || !W) return;
+  var t = ev.target;
+  if (t.classList.contains("nota") && W) { notas()[t.dataset.e] = t.value; salvaRascunho(); return; }
+  var r = t.closest(".row"); if (!r || !W) return;
   var x = sets(W.ex[+r.dataset.i])[+r.dataset.j];
   if (t.classList.contains("kg")) x.kg = t.value.replace(",", "."); else if (t.classList.contains("rp")) x.reps = t.value;
   salvaRascunho(); progress();

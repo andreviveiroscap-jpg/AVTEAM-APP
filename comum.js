@@ -31,6 +31,13 @@ function cfgDe(e){
   var c = []; for (var j = 0; j < (e.series || 1); j++) c.push({tipo:"trabalho", reps:e.repeticoes || ""});
   return c;
 }
+// Resumo das séries: "Aquec. 12 · Reconh. 6 · 2× Trab. 6–10".
+function resumoSeries(cfg){
+  var g = [];
+  cfg.forEach(function(c){ var u = g[g.length - 1]; if (u && u.tipo === c.tipo && u.reps === c.reps) u.n++; else g.push({tipo:c.tipo, reps:c.reps, n:1}); });
+  // Espaços fixos e "–" sem quebra: cada grupo ("2× Trab. 6–10") fica numa linha só.
+  return g.map(function(x){ return ((x.n > 1 ? x.n + "× " : "") + (TIPOS_CURTOS[x.tipo] || "Trab.") + (x.reps ? " " + x.reps : "")).replace(/ /g, "\u00a0").replace(/–/g, "\u2060–\u2060"); }).join(" · ");
+}
 function tipoChip(t){ t = TIPOS[t] ? t : "trabalho"; return '<span class="tipo t-' + t + '">' + TIPOS[t] + '</span>'; }
 function guarda(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function pega(k){ try { var r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } }

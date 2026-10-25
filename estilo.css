@@ -195,3 +195,27 @@ h1{font-size:34px}
 .adds{border:1px dashed var(--acc);background:transparent;color:var(--acc);border-radius:9px;height:36px;padding:0 12px;font:600 14px Barlow,sans-serif;cursor:pointer;margin-top:2px}
 .prevt{margin:8px 0 0 34px;font-size:13px;color:var(--mute)}
 .prevt .tipo{margin-right:4px}
+
+/* Cartões de exercício no estilo de app de treino */
+.exh{gap:12px}
+.ex.acc .exst{display:grid;place-items:center;width:38px;height:38px;min-width:38px;border-radius:50%;background:var(--bg);border:2px solid var(--line);color:var(--acc);font:400 20px "Bebas Neue",sans-serif}
+.ex.aberto .exst{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.ex.acc .exst.ok{background:var(--ok);border-color:var(--ok);color:var(--on);font:700 17px Barlow,sans-serif}
+.exh .meta+.meta{margin-top:0}
+.seta{flex:none;color:var(--mute);font-size:16px;width:16px;text-align:center}
+.row.s:not(.h){border-top:1px solid var(--line);border-radius:0}
+.row.s.done{border-radius:10px;border-top-color:transparent}
+.obs{display:block;margin:10px 12px 0;font-size:13px;color:var(--mute)}
+.obs textarea{display:block;width:100%;margin-top:4px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 15px Barlow,sans-serif;padding:8px 10px;resize:vertical}
+.obs textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.exed.fechado{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;width:100%;text-align:left;color:var(--ink);font:inherit;cursor:pointer;padding:12px 10px}
+.exres{display:flex;flex-direction:column;min-width:0}
+.exres b{font-weight:600;font-size:16px}
+.exres span{font-size:13px;color:var(--mute)}
+.exed.aberto{border:2px solid var(--acc)}
+.dels{color:#b3261e!important;font-size:18px!important}
+.dels:disabled{opacity:.25}
+.addtipos{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.addtipos button{border:1px dashed var(--line);background:var(--card);border-radius:9px;padding:4px 8px 4px 6px;color:var(--ink);font:600 13px Barlow,sans-serif;cursor:pointer}
+.pronto{display:block;margin:8px 0 0 auto;padding:4px 0}
+.nota-al{display:block;margin-top:3px;font-size:14px;background:var(--bg);border-radius:8px;padding:5px 8px}
