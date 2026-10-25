@@ -4,7 +4,7 @@ window.BIBLIOTECA = [
   // Peito
   ["Supino reto com barra", "Peito"],
   ["Supino reto com halteres", "Peito"],
-  ["Supino reto na máquina", "Peito"],
+  ["Supino reto na máquina (chest press)", "Peito"],
   ["Supino reto no Smith", "Peito"],
   ["Supino inclinado com barra", "Peito"],
   ["Supino inclinado com halteres", "Peito"],
@@ -26,7 +26,6 @@ window.BIBLIOTECA = [
   ["Flexão de braço declinada", "Peito"],
   ["Pullover com halter", "Peito"],
   ["Paralelas (mergulho) para peito", "Peito"],
-  ["Chest press articulado", "Peito"],
 
   // Costas
   ["Puxada frontal aberta", "Costas"],
