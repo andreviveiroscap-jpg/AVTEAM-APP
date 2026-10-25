@@ -18,6 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="comum.js"></script>
+<script src="exercicios.js"></script>
 <script>
 // Painel do treinador (login por e-mail e senha).
 var DEF = "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.";
@@ -239,7 +240,17 @@ function viewVolume(){
 // Séries de um exercício novo: aquecimento, reconhecimento e duas de trabalho.
 var SERIES_PADRAO = [{tipo:"aquecimento", reps:"12"}, {tipo:"reconhecimento", reps:"6"}, {tipo:"trabalho", reps:"6–10"}, {tipo:"trabalho", reps:"6–10"}];
 var DESCANSOS = [0, 30, 45, 60, 75, 90, 120, 150, 180, 240, 300];
-var GRUPOS = ["Peito", "Costas", "Ombro", "Bíceps", "Tríceps", "Antebraço", "Quadríceps", "Posterior", "Glúteo", "Panturrilha", "Abdômen", "Lombar"];
+var GRUPOS = ["Peito", "Costas", "Ombro", "Bíceps", "Tríceps", "Antebraço", "Quadríceps", "Posterior", "Glúteo", "Adutor", "Panturrilha", "Abdômen", "Lombar"];
+// Busca na biblioteca de exercícios (exercicios.js): ignora acentos e maiúsculas,
+// e cada palavra digitada precisa aparecer no nome ou no grupo.
+function semAcento(t){ return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+var BUSCA = (window.BIBLIOTECA || []).map(function(x){ return semAcento(x[0] + " " + x[1]); });
+function sugere(v, at){
+  var el = $("sug"); if (!el) return;
+  var ps = semAcento(v).split(/\s+/).filter(Boolean), r = [];
+  if (ps.length) BUSCA.forEach(function(b, k){ if (r.length < 8 && BIBLIOTECA[k][0] !== v && ps.every(function(p){ return b.indexOf(p) >= 0; })) r.push(k); });
+  el.innerHTML = r.map(function(k){ return '<button type="button" data-act="sug" data-k="' + k + '"' + at + '><b>' + esc(BIBLIOTECA[k][0]) + '</b><span>' + esc(BIBLIOTECA[k][1]) + '</span></button>'; }).join("");
+}
 function novasSeries(){ return JSON.parse(JSON.stringify(SERIES_PADRAO)); }
 // Acrescenta uma série do tipo pedido na ordem aquecimento → reconhecimento → trabalho.
 var ORDEM_TIPO = {aquecimento:0, reconhecimento:1, trabalho:2}, REPS_PADRAO = {aquecimento:"12", reconhecimento:"6", trabalho:"6–10"};
@@ -269,7 +280,8 @@ function viewEditor(){
               '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + '</span></span><span class="seta">✎</span></button>';
           }
           return '<div class="exed aberto"><div class="exed-top"><span class="exnum">' + (ei + 1) + '</span>' +
-            '<input class="f nm" placeholder="Nome do exercício" data-f="en"' + at + ' value="' + esc(e.nome) + '"></div>' +
+            '<input class="f nm" placeholder="Digite para buscar o exercício" autocomplete="off" data-f="en"' + at + ' value="' + esc(e.nome) + '"></div>' +
+            '<div class="sugest" id="sug"></div>' +
             '<div class="exed-sub"><input class="f grupo" list="grupos" placeholder="Grupo muscular" data-f="eg"' + at + ' value="' + esc(e.grupo) + '">' +
             '<span class="mov"><button type="button" data-act="sobe"' + at + ' aria-label="Subir exercício"' + (ei ? '' : ' disabled') + '>↑</button><button type="button" data-act="desce"' + at + ' aria-label="Descer exercício"' + (ei < t.ex.length - 1 ? '' : ' disabled') + '>↓</button><button type="button" class="dan" data-act="dele"' + at + ' aria-label="Remover exercício">✕</button></span></div>' +
             '<div class="sets-ed"><div class="set-cab"><span></span><span>Tipo da série</span><span>Reps</span><span></span></div>' +
@@ -329,7 +341,8 @@ app.addEventListener("input", function(ev){
   var T = EDIT.treinos[+t.dataset.ti], E = T && T.ex[+t.dataset.ei], S = E && E.series_cfg[+t.dataset.si], v = t.value;
   if (f === "nome") EDIT.nome = v; else if (f === "orient") EDIT.orientacoes = v;
   else if (f === "dia") T.dia = v; else if (f === "tn") T.nome = v;
-  else if (f === "en") E.nome = v; else if (f === "eg") E.grupo = v;
+  else if (f === "en") { E.nome = v; sugere(v, ' data-ti="' + t.dataset.ti + '" data-ei="' + t.dataset.ei + '"'); }
+  else if (f === "eg") E.grupo = v;
   else if (f === "sr") S.reps = v;
   else if (f === "ed") E.descanso = Number(v);
   else if (f === "st") { S.tipo = v; t.closest(".set-ed").className = "set-ed t-" + v; }
@@ -359,7 +372,8 @@ app.addEventListener("click", async function(ev){
     catch (e) { falha(e, "gerar o novo link"); }
   }
   else if (a === "salvar") salvar(b);
-  else if (a === "adde") { var nx = EDIT.treinos[ti].ex; nx.push({id:novoId(), nome:"", grupo:"", series_cfg:novasSeries(), descanso:90}); EDABERTO = ti + ":" + (nx.length - 1); redraw(); }
+  else if (a === "adde") { var nx = EDIT.treinos[ti].ex; nx.push({id:novoId(), nome:"", grupo:"", series_cfg:novasSeries(), descanso:90}); EDABERTO = ti + ":" + (nx.length - 1); redraw(); var ni = document.querySelector(".exed.aberto .nm"); if (ni) ni.focus(); }
+  else if (a === "sug") { var se = EDIT.treinos[ti].ex[ei], bx = BIBLIOTECA[+b.dataset.k]; se.nome = bx[0]; se.grupo = bx[1]; redraw(); }
   else if (a === "adds") { adicionaSerie(EDIT.treinos[ti].ex[ei].series_cfg, b.dataset.tipo); redraw(); }
   else if (a === "editex") { EDABERTO = ti + ":" + ei; redraw(); }
   else if (a === "fechaex") { EDABERTO = null; viewEditor(); }
