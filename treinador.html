@@ -89,6 +89,12 @@ async function lista(){
     '<button class="big" data-act="novo">+ Novo aluno</button>' +
     '<label class="fl">Link do aluno<input id="lk" readonly placeholder="Toque em Copiar link"></label></main>';
 }
+function verComoAluno(url){
+  var o = document.createElement("div"); o.className = "previa"; o.id = "previa";
+  o.innerHTML = '<div class="previa-top"><span>Visualização do aluno</span><button type="button" id="fechaprevia">✕ Fechar</button></div><iframe title="Tela do aluno" src="' + esc(url) + '"></iframe>';
+  document.body.appendChild(o); document.body.classList.add("sem-rolagem");
+  $("fechaprevia").addEventListener("click", function(){ o.remove(); document.body.classList.remove("sem-rolagem"); if (AL && AL.id) abrir(AL.id, ABA); });
+}
 function viewErro(f){
   app.innerHTML = topBar("Painel do treinador", "Sem conexão") + '<main><div class="aviso"><p>Não foi possível carregar. Confira a internet.</p></div><button class="big" data-act="tentar" type="button">Tentar de novo</button></main>';
   viewErro.f = f;
@@ -330,8 +336,10 @@ app.addEventListener("input", function(ev){
   sujo();
 });
 app.addEventListener("click", async function(ev){
-  // Avisa a tela do aluno que veio do painel (para mostrar "Voltar ao painel").
-  if (ev.target.closest("[data-act=vercomo]")) { try { sessionStorage.setItem("av-do-painel", "1"); } catch (e) {} return; }
+  // "Ver como aluno" abre a tela do aluno por cima do painel, sem trocar de
+  // página: no app em tela cheia do iPhone, trocar de página mostra a barra do Safari.
+  var vc = ev.target.closest("[data-act=vercomo]");
+  if (vc) { ev.preventDefault(); verComoAluno(vc.href); return; }
   var b = ev.target.closest("button"); if (!b) return;
   var a = b.dataset.act, ti = +b.dataset.ti, ei = +b.dataset.ei;
   if (b.dataset.aba) { ABA = b.dataset.aba; viewAluno(); return; }
