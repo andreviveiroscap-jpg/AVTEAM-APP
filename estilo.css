@@ -237,3 +237,4 @@ body.com-timer main{padding-bottom:280px}
 @media (prefers-reduced-motion:reduce){.tm-bar i{transition:none}}
 .desc-ed{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 0 20px;font-size:14px;color:var(--mute)}
 .desc-ed select{height:38px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:600 14px Barlow,sans-serif;padding:0 6px}
+.voltap{display:inline-block;padding:0 0 6px}

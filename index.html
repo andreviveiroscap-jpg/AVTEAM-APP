@@ -30,6 +30,8 @@ function kDados(){ return "av-dados-" + CODE; }
 function kCur(){ return "av-cur-" + CODE; }
 function kPend(){ return "av-pend-" + CODE; }
 function salvaRascunho(){ guarda(kCur(), CUR); }
+// O treinador chegou aqui pelo "Ver como aluno" (no app em tela cheia não há botão de voltar).
+function doPainel(){ try { return sessionStorage.getItem("av-do-painel") === "1"; } catch (e) { return false; } }
 
 function sets(e){
   var t = CUR[W.id] = CUR[W.id] || {}, c = t[e.id] = t[e.id] || [], n = cfgDe(e).length;
@@ -88,6 +90,7 @@ function viewAluno(){
   W = (W && ws.filter(function(w){ return w.id === W.id; })[0]) || ws[0] || null;
   var lines = (DADOS.orientacoes || "").split("\n").filter(function(l){ return l.trim(); });
   app.innerHTML = topBar("Aluno: " + esc(DADOS.nome), W ? esc(W.dia + ": " + W.nome) : "Sem treino") + '<main>' +
+    (doPainel() ? '<a class="lnk voltap" href="treinador.html">← Voltar ao painel</a>' : '') +
     (OFFLINE ? '<div class="aviso"><p>Sem internet: mostrando o último treino salvo neste celular.</p></div>' : '') +
     '<div id="pendente"></div>' +
     '<div class="tabs"' + (ws.length < 2 ? " hidden" : "") + '>' + ws.map(function(w){ return '<button type="button" data-w="' + w.id + '" aria-pressed="' + (w === W) + '">' + esc(w.dia) + '</button>'; }).join("") + '</div>' +
