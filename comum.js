@@ -10,7 +10,7 @@ var app = document.getElementById("app");
 function $(id){ return document.getElementById(id); }
 function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function toast(m){ var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function(){ t.hidden = true; }, 4200); }
-function topBar(sub, title){ return '<header class="top"><div class="in"><img class="logo" src="logo.png" alt="AV Team" width="66" height="63"><div><p class="hello">' + sub + '</p><h1>' + title + '</h1></div></div></header>'; }
+function topBar(sub, title){ return '<header class="top"><div class="in"><img class="logo" src="logo.png?v=2" alt="AV Team" width="66" height="63"><div><p class="hello">' + sub + '</p><h1>' + title + '</h1></div></div></header>'; }
 function num(v){ var n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) ? n : null; }
 function tonSeries(list){ var t = 0; list.forEach(function(x){ var k = num(x.carga), r = parseInt(x.repeticoes, 10); if (k > 0 && r > 0) t += k * r; }); return t; }
 function kg(v){ return Number(v).toLocaleString("pt-BR", {maximumFractionDigits:2}); }
