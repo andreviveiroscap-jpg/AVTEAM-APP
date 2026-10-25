@@ -1,238 +1,200 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.envio{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:12px 14px;margin-top:14px}.envio p{margin:0 0 8px;font-size:15px}.envio textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 14px Barlow,sans-serif;padding:8px}.lnkbtn{display:inline-block;background:var(--acc);color:var(--on);text-decoration:none;border-radius:10px;padding:8px 12px;font:600 14px Barlow,sans-serif}
-</style></head><body>
 <!doctype html>
-<html lang="pt-BR"><head><meta data-k charset="utf-8">
-<meta data-k name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title data-k>AV Team – Treinos</title>
-<link data-k rel="preconnect" href="https://fonts.googleapis.com">
-<link data-k href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"><style id="css">
-:root{--bg:#f4f2f8;--card:#fff;--ink:#1b1230;--mute:#6a6280;--line:#ddd6ea;--acc:#2f0f5a;--on:#fff;--ok:#12805c;--okbg:#e0f4ea;--band:#2f0f5a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#150b26;--card:#20123a;--ink:#ece7f7;--mute:#a89fc0;--line:#36264f;--acc:#a78bff;--on:#150b26;--ok:#4cd6a0;--okbg:#14382d;--band:#2f0f5a}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#150b26;--card:#20123a;--ink:#ece7f7;--mute:#a89fc0;--line:#36264f;--acc:#a78bff;--on:#150b26;--ok:#4cd6a0;--okbg:#14382d;--band:#2f0f5a}
-*,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:560px;margin:0 auto;padding:18px 14px 120px}
-h1,h2{font-family:"Bebas Neue",Barlow,system-ui,sans-serif;font-weight:400;letter-spacing:.02em;margin:0;line-height:1.05}
-h1{font-size:34px}
-.top{background:var(--band);color:#fff;clip-path:polygon(0 0,100% 0,calc(100% - 40px) 100%,0 100%);padding:14px 14px 20px}
-.top .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:14px}
-.logo{width:66px;height:auto;flex:none;background:#fff;border-radius:12px;padding:3px}
-.top h1{color:#fff}
-.top .hello{color:#d9ccf5;margin:0 0 2px}
-.top .hello input{color:#fff;border-bottom:1px dashed rgba(255,255,255,.5)}
-.hello{display:flex;align-items:center;gap:8px;color:var(--mute);margin:0 0 6px;font-size:15px}
-.hello input{flex:1;min-width:0;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--ink);font:600 15px Barlow,sans-serif;padding:2px 0}
-.tabs{display:flex;gap:8px;margin:14px 0 0;overflow-x:auto}
-.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:7px 14px;font:600 14px Barlow,sans-serif;white-space:nowrap}
-.tabs button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on)}
-.prog{margin:16px 0 6px;height:8px;border-radius:8px;background:var(--line);overflow:hidden}
-.prog i{display:block;height:100%;width:0;background:var(--ok);transition:width .25s}
-.progt{font-size:14px;color:var(--mute);margin:0 0 4px}
-.vol{font:600 17px Barlow,sans-serif;margin:0 0 8px}
-.grp{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
-.grp span{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:3px 10px;font-size:13px}
-.vol small{display:block;font-weight:500;font-size:13px;color:var(--mute)}
-.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 12px 8px;margin-bottom:12px}
-.ex h2{font-size:26px}
-.meta{color:var(--mute);font-size:14px;margin:3px 0 10px}
-.row{display:grid;grid-template-columns:34px 1fr 76px 62px 42px;gap:8px;align-items:center;padding:6px 4px;border-radius:10px}
-.row.h{font-size:12px;color:var(--mute);padding-top:0;padding-bottom:2px}
-.row.done{background:var(--okbg)}
-.n{font:400 22px "Bebas Neue",sans-serif;color:var(--mute);text-align:center}
-.prev{font-size:14px;color:var(--mute)}
-.row input{width:100%;height:42px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:600 17px Barlow,sans-serif;text-align:center;padding:0 4px}
-.row input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.chk{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:transparent;color:transparent;font-size:20px;font-weight:700}
-.row.done .chk{background:var(--ok);border-color:var(--ok);color:var(--on)}
-.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);display:flex;gap:10px;justify-content:center}
-.bar button{flex:1;max-width:270px;height:48px;border-radius:12px;font:700 16px Barlow,sans-serif;border:1px solid var(--acc);cursor:pointer}
-#fin{background:var(--acc);color:var(--on)}
-#wpp{background:transparent;color:var(--acc)}
-.toast{position:fixed;left:14px;right:14px;bottom:84px;margin:auto;max-width:520px;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;font-size:15px}
-.toast[hidden]{display:none}
-.info{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:0 14px;margin:14px 0 0}
-.info summary{font:400 22px "Bebas Neue",sans-serif;letter-spacing:.02em;padding:12px 0;cursor:pointer}
-.info summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.info[open] summary{border-bottom:1px solid var(--line)}
-.info ul{margin:10px 0;padding-left:18px}
-.info li{margin:0 0 8px;font-size:15px}
-.info h3{font:400 20px "Bebas Neue",sans-serif;letter-spacing:.02em;margin:14px 0 6px}
-.info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0 0 12px;font-size:15px}
-.info dt{font-weight:600}
-.info dd{margin:0}
-@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AV Team – Treinos</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+</head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>var AV_ALUNO = true;</script>
+<script src="comum.js"></script>
+<script>
+// Tela do aluno. Acesso pelo link com o código: .../#CODIGO
+var CODE = "", DADOS = null, W = null, CUR = {}, PEND = [], ENVIANDO = false, OFFLINE = false;
 
-.lnk{background:none;border:0;color:var(--acc);font:600 14px Barlow,sans-serif;padding:0 0 10px;cursor:pointer}
-.fl{display:block;font-size:13px;color:var(--mute);margin:0 0 12px}
-.fl input,.fl textarea,.f{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 15px Barlow,sans-serif;padding:9px 10px}
-.f{margin-top:0}
-.fl input:focus-visible,.fl textarea:focus-visible,.f:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
-.acts button,.sm{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:10px;padding:8px 12px;font:600 14px Barlow,sans-serif;cursor:pointer}
-.acts .pri{background:var(--acc);color:var(--on)}
-.acts .dan,.dan{color:#b3261e;border-color:#b3261e}
-.big{width:100%;height:46px;border-radius:12px;border:1px dashed var(--acc);background:transparent;color:var(--acc);font:700 16px Barlow,sans-serif;margin:4px 0 12px;cursor:pointer}
-.erow{display:grid;grid-template-columns:1fr 52px 62px 38px;gap:6px;margin-bottom:10px}
-.erow .nm{grid-column:1/-1}
-.sm{padding:0;height:40px}
-#pub{background:var(--acc);color:var(--on)}
-#pub:disabled{opacity:.45}
-#volta{background:transparent;color:var(--acc)}
-</style></head><body><div id="app"></div><div class="toast" id="toast" hidden></div><script id="dados" type="application/json">{"base": "https://claude.ai/artifact/XgeaesaKAUEhGMYvDii9sp", "fone": "5521985083616", "alunos": [{"id": "k4m9x2q7", "nome": "Fernando Martins", "orient": "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.", "treinos": [{"id": "tseg", "dia": "Segunda", "nome": "Peito, ombro e tríceps", "ex": [{"n": "Supino inclinado com halter", "g": "Peito", "s": 3, "r": "6–10"}, {"n": "Supino reto com barra", "g": "Peito", "s": 3, "r": "6–10"}, {"n": "Crucifixo na máquina", "g": "Peito", "s": 3, "r": "6–10"}, {"n": "Desenvolvimento de ombros", "g": "Ombro", "s": 3, "r": "6–10"}, {"n": "Elevação lateral com halter", "g": "Ombro", "s": 3, "r": "6–10"}, {"n": "Tríceps no pulley", "g": "Tríceps", "s": 3, "r": "6–10"}, {"n": "Tríceps francês", "g": "Tríceps", "s": 3, "r": "6–10"}]}]}]}</script><script id="js">var D = JSON.parse(document.getElementById("dados").textContent);
-var LOGO = "data:image/png;base64,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";
-var DEF = "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.";
-var app = document.getElementById("app");
-var OWNER = false, A = null, W = null, S = null, EDIT = null, DIRTY = false;
-function $(id){ return document.getElementById(id); }
-function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
-function uid(){ return Math.random().toString(36).slice(2, 10); }
-function toast(m){ var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function(){ t.hidden = true; }, 3800); }
-function skey(){ return "av-" + A.id; }
-function load(){ S = {cur:{}, last:{}}; try { var r = localStorage.getItem(skey()); if (r) S = Object.assign(S, JSON.parse(r)); } catch (e) {} }
-function save(){ try { localStorage.setItem(skey(), JSON.stringify(S)); } catch (e) {} }
-function topBar(sub, title){ return '<header class="top"><div class="in"><img class="logo" src="' + LOGO + '" alt="AV Team" width="66" height="63"><div><p class="hello">' + sub + '</p><h1>' + title + '</h1></div></div></header>'; }
-function tonn(data){ var t = 0; data.forEach(function(ex){ ex.forEach(function(x){ var k = parseFloat(x.kg), r = parseInt(x.reps, 10); if (k > 0 && r > 0) t += k * r; }); }); return t; }
-function fmtS(kg){ return kg.toLocaleString("pt-BR", {maximumFractionDigits:0}) + " kg"; }
-function fmt(kg){ return fmtS(kg) + " (" + (kg / 1000).toLocaleString("pt-BR", {maximumFractionDigits:2}) + " t)"; }
-function sets(i){ var c = S.cur[W.id] = S.cur[W.id] || []; if (!c[i]) c[i] = []; var n = W.ex[i].s || 1; for (var j = 0; j < n; j++) if (!c[i][j]) c[i][j] = {kg:"", reps:"", done:false}; return c[i].slice(0, n); }
-function grpTxt(){ var g = {}, o = []; W.ex.forEach(function(e, i){ var k = e.g || "Outros"; if (!(k in g)) { g[k] = 0; o.push(k); } g[k] += tonn([sets(i)]); }); return o.map(function(k){ return k + " " + fmtS(g[k]); }); }
-function prevTxt(i, j){ var l = S.last[W.id], p = l && l[i] && l[i][j]; return p && p.kg ? p.kg + " kg × " + (p.reps || "?") : "–"; }
+function kDados(){ return "av-dados-" + CODE; }
+function kCur(){ return "av-cur-" + CODE; }
+function kPend(){ return "av-pend-" + CODE; }
+function salvaRascunho(){ guarda(kCur(), CUR); }
 
-function viewBloqueio(){ app.innerHTML = topBar("AV Team", "Treinos") + '<main><p>Abra o link que o seu treinador enviou para ver o seu treino.</p><button class="lnk" data-act="coach" type="button">Sou o treinador</button></main>'; }
+function sets(e){
+  var t = CUR[W.id] = CUR[W.id] || {}, c = t[e.id] = t[e.id] || [], n = e.series || 1;
+  for (var j = 0; j < n; j++) if (!c[j]) c[j] = {kg:"", reps:"", done:false};
+  return c.slice(0, n);
+}
+function comoSeries(e){ return sets(e).map(function(x){ return {carga:x.kg, repeticoes:x.reps}; }); }
+function grpTxt(){
+  var g = {}, o = [];
+  W.ex.forEach(function(e){ var k = e.grupo || "Outros"; if (!(k in g)) { g[k] = 0; o.push(k); } g[k] += tonSeries(comoSeries(e)); });
+  return o.map(function(k){ return k + " " + fmtS(g[k]); });
+}
+function prevTxt(e, j){
+  var l = DADOS.ultima[e.id] || [], p = l.filter(function(x){ return x.numero === j + 1; })[0];
+  if (!p || (p.carga == null && p.repeticoes == null)) return "–";
+  return (p.carga != null ? kg(p.carga) + " kg" : "?") + " × " + (p.repeticoes != null ? p.repeticoes : "?");
+}
+
+// Treinos ainda não enviados contam como "última vez" até chegarem ao banco.
+function aplicaPendentes(d){
+  PEND.forEach(function(p){
+    var por = {};
+    p.series.forEach(function(s){ (por[s.exercicio_id] = por[s.exercicio_id] || []).push(s); });
+    Object.keys(por).forEach(function(id){ d.ultima[id] = por[id]; });
+    d.anterior[p.treino] = {data:p.data, tonelagem:tonSeries(p.series)};
+  });
+  return d;
+}
+
+async function carregar(){
+  if (!DADOS) app.innerHTML = topBar("AV Team", "Carregando…") + '<main><p class="vazio">Carregando o seu treino…</p></main>';
+  try {
+    var d = await rpc("aluno_dados", {p_codigo:CODE});
+    if (!d) { linkInvalido(); return; }
+    guarda(kDados(), d); OFFLINE = false; DADOS = aplicaPendentes(d);
+  } catch (e) {
+    var c = pega(kDados());
+    if (!c) { semInternet(); return; }
+    OFFLINE = true; DADOS = aplicaPendentes(c);
+  }
+  viewAluno();
+}
+function linkInvalido(){
+  app.innerHTML = topBar("AV Team", "Link inválido") + '<main><div class="aviso"><p>Este link não está mais ativo.</p><p>Peça o link atualizado ao seu treinador.</p></div></main>';
+}
+function semInternet(){
+  app.innerHTML = topBar("AV Team", "Sem conexão") + '<main><div class="aviso"><p>Não foi possível carregar o seu treino. Confira a internet e tente de novo.</p></div><button class="big" data-act="recarregar" type="button">Tentar de novo</button></main>';
+}
+function viewBloqueio(){
+  app.innerHTML = topBar("AV Team", "Treinos") + '<main><p>Abra o link que o seu treinador enviou para ver o seu treino.</p><a class="lnk" href="treinador.html">Sou o treinador</a></main>';
+}
 
 function viewAluno(){
-  var ws = A.treinos; if (!W || ws.indexOf(W) < 0) W = ws[0] || null;
-  var lines = (A.orient || "").split("\n").filter(function(l){ return l.trim(); });
-  app.innerHTML = topBar("Aluno: " + esc(A.nome), W ? esc(W.dia + ": " + W.nome) : "Sem treino") + '<main>' +
-    (OWNER ? '<button class="lnk" id="back" type="button">← Painel do treinador</button>' : '') +
+  var ws = DADOS.treinos;
+  W = (W && ws.filter(function(w){ return w.id === W.id; })[0]) || ws[0] || null;
+  var lines = (DADOS.orientacoes || "").split("\n").filter(function(l){ return l.trim(); });
+  app.innerHTML = topBar("Aluno: " + esc(DADOS.nome), W ? esc(W.dia + ": " + W.nome) : "Sem treino") + '<main>' +
+    (OFFLINE ? '<div class="aviso"><p>Sem internet: mostrando o último treino salvo neste celular.</p></div>' : '') +
+    '<div id="pendente"></div>' +
     '<div class="tabs"' + (ws.length < 2 ? " hidden" : "") + '>' + ws.map(function(w){ return '<button type="button" data-w="' + w.id + '" aria-pressed="' + (w === W) + '">' + esc(w.dia) + '</button>'; }).join("") + '</div>' +
     (lines.length ? '<details class="info"><summary>Orientações do treino</summary><ul>' + lines.map(function(l){ return "<li>" + esc(l).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>"; }).join("") + "</ul></details>" : "") +
     '<div class="prog"><i id="pb"></i></div><p class="progt" id="pt"></p><p class="vol" id="vol"></p><div class="grp" id="grp"></div><div id="lista"></div></main>' +
     '<div class="bar"><button id="wpp" type="button">Enviar ao treinador</button><button id="fin" type="button">Finalizar treino</button></div>';
+  renderPendente();
   renderLista();
 }
+function renderPendente(){
+  var el = $("pendente"); if (!el) return;
+  el.innerHTML = PEND.length ? '<div class="aviso pend"><p>' + (PEND.length === 1 ? "1 treino aguardando envio" : PEND.length + " treinos aguardando envio") + ' (sem internet na hora de finalizar). Ele será enviado automaticamente.</p><button class="lnk" data-act="enviar" type="button">Tentar enviar agora</button></div>' : "";
+}
 function renderLista(){
-  if (!W) { $("lista").innerHTML = '<p class="meta">O treinador ainda não montou o seu treino.</p>'; return; }
+  if (!W) { $("lista").innerHTML = '<p class="meta">O treinador ainda não montou o seu treino.</p>'; $("fin").disabled = true; $("wpp").disabled = true; return; }
   $("lista").innerHTML = W.ex.length ? W.ex.map(function(e, i){
-    var s = sets(i);
-    return '<section class="ex"><h2>' + esc(e.n) + '</h2><p class="meta">' + e.s + ' séries · ' + esc(e.r) + ' repetições · volume: <span id="ev' + i + '"></span></p>' +
+    return '<section class="ex"><h2>' + esc(e.nome) + '</h2><p class="meta">' + e.series + ' séries' + (e.repeticoes ? ' · ' + esc(e.repeticoes) + ' repetições' : '') + ' · volume: <span id="ev' + i + '"></span></p>' +
       '<div class="row h"><span class="n">Série</span><span>Última vez</span><span>Carga (kg)</span><span>Reps</span><span></span></div>' +
-      s.map(function(x, j){ return '<div class="row' + (x.done ? " done" : "") + '" data-i="' + i + '" data-j="' + j + '"><span class="n">' + (j + 1) + '</span><span class="prev">' + prevTxt(i, j) + '</span><input class="kg" inputmode="decimal" aria-label="Carga em kg, série ' + (j + 1) + '" value="' + esc(x.kg) + '"><input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" value="' + esc(x.reps) + '"><button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>'; }).join("") + '</section>';
+      sets(e).map(function(x, j){ return '<div class="row' + (x.done ? " done" : "") + '" data-i="' + i + '" data-j="' + j + '"><span class="n">' + (j + 1) + '</span><span class="prev">' + prevTxt(e, j) + '</span><input class="kg" inputmode="decimal" aria-label="Carga em kg, série ' + (j + 1) + '" value="' + esc(x.kg) + '"><input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" value="' + esc(x.reps) + '"><button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>'; }).join("") + '</section>';
   }).join("") : '<p class="meta">Este treino ainda não tem exercícios.</p>';
   progress();
 }
 function progress(){
-  var t = 0, d = 0, cur = W.ex.map(function(e, i){ return sets(i); }), l = S.last[W.id];
-  cur.forEach(function(a){ a.forEach(function(x){ t++; if (x.done) d++; }); });
+  var t = 0, d = 0, cur = [], ant = DADOS.anterior[W.id];
+  W.ex.forEach(function(e){ sets(e).forEach(function(x){ t++; if (x.done) d++; }); cur = cur.concat(comoSeries(e)); });
   $("pb").style.width = (t ? d / t * 100 : 0) + "%";
   $("pt").textContent = d + " de " + t + " séries concluídas";
-  $("vol").innerHTML = "Volume total: " + fmt(tonn(cur)) + (l ? "<small>Treino anterior: " + fmt(tonn(l)) + "</small>" : "");
-  W.ex.forEach(function(e, i){ $("ev" + i).textContent = fmtS(tonn([cur[i]])); });
+  $("vol").innerHTML = "Volume total: " + fmt(tonSeries(cur)) + (ant ? "<small>Treino anterior (" + esc(dataCurta(ant.data)) + "): " + fmt(Number(ant.tonelagem)) + "</small>" : "");
+  W.ex.forEach(function(e, i){ $("ev" + i).textContent = fmtS(tonSeries(comoSeries(e))); });
   $("grp").innerHTML = grpTxt().map(function(s){ return "<span>" + esc(s) + "</span>"; }).join("");
 }
 
-function viewPainel(){
-  A = null; W = null;
-  app.innerHTML = topBar("Painel do treinador", "Meus alunos") + '<main>' +
-    '<label class="fl">Link do app<input data-f="base" value="' + esc(D.base) + '"></label>' +
-    '<label class="fl">Seu WhatsApp, com DDI (ex.: 5521999999999)<input data-f="fone" inputmode="numeric" value="' + esc(D.fone) + '"></label>' +
-    D.alunos.map(function(a){ return '<section class="ex"><h2>' + esc(a.nome) + '</h2><p class="meta">' + a.treinos.length + ' treino(s) · código #' + a.id + '</p><div class="acts"><button class="pri" data-act="ver" data-id="' + a.id + '">Ver como aluno</button><button data-act="edit" data-id="' + a.id + '">Editar</button><button data-act="copy" data-id="' + a.id + '">Copiar link</button></div></section>'; }).join("") +
-    '<button class="big" data-act="novo">+ Novo aluno</button>' +
-    '<label class="fl">Link do aluno<input id="lk" readonly placeholder="Toque em Copiar link"></label></main>' +
-    '<div class="bar"><button id="pub" data-act="pub" type="button"' + (DIRTY ? "" : " disabled") + '>Publicar alterações</button></div>';
+function finalizar(){
+  var series = [];
+  W.ex.forEach(function(e){
+    sets(e).forEach(function(x, j){
+      var c = num(x.kg), r = parseInt(x.reps, 10);
+      if (c == null && isNaN(r)) return;
+      series.push({exercicio_id:e.id, numero:j + 1, carga:c, repeticoes:isNaN(r) ? null : r});
+    });
+  });
+  if (!series.length) { toast("Preencha a carga ou as repetições de pelo menos uma série."); return; }
+  PEND.push({id:novoId(), treino:W.id, data:new Date().toISOString(), series:series});
+  guarda(kPend(), PEND);
+  aplicaPendentes(DADOS);
+  delete CUR[W.id]; salvaRascunho();
+  viewAluno(); window.scrollTo(0, 0);
+  enviarPendentes(true);
 }
-function viewEditor(){
-  var a = EDIT;
-  app.innerHTML = topBar("Editando aluno", esc(a.nome || "Novo aluno")) + '<main>' +
-    '<label class="fl">Nome do aluno<input data-f="nome" value="' + esc(a.nome) + '"></label>' +
-    '<label class="fl">Orientações (uma por linha; **texto** deixa em negrito)<textarea data-f="orient" rows="9">' + esc(a.orient) + '</textarea></label>' +
-    a.treinos.map(function(t, ti){
-      return '<section class="ex"><label class="fl">Dia<input data-f="dia" data-ti="' + ti + '" value="' + esc(t.dia) + '"></label><label class="fl">Nome do treino<input data-f="tn" data-ti="' + ti + '" value="' + esc(t.nome) + '"></label>' +
-        t.ex.map(function(e, ei){ var at = ' data-ti="' + ti + '" data-ei="' + ei + '"'; return '<div class="erow"><input class="f nm" placeholder="Exercício" data-f="en"' + at + ' value="' + esc(e.n) + '"><input class="f" placeholder="Grupo" data-f="eg"' + at + ' value="' + esc(e.g) + '"><input class="f" inputmode="numeric" placeholder="Sér." data-f="es"' + at + ' value="' + esc(e.s) + '"><input class="f" placeholder="Reps" data-f="er"' + at + ' value="' + esc(e.r) + '"><button class="sm" type="button" data-act="dele"' + at + ' aria-label="Remover exercício">✕</button></div>'; }).join("") +
-        '<div class="acts"><button data-act="adde" data-ti="' + ti + '">+ Exercício</button><button class="dan" data-act="delt" data-ti="' + ti + '">Remover treino</button></div></section>';
-    }).join("") +
-    '<button class="big" data-act="addt">+ Treino</button><div class="acts"><button class="dan" data-act="dela">Excluir aluno</button></div></main>' +
-    '<div class="bar"><button id="volta" data-act="volta" type="button">Voltar</button><button id="pub" data-act="pub" type="button"' + (DIRTY ? "" : " disabled") + '>Publicar alterações</button></div>';
+async function enviarPendentes(avisar){
+  if (ENVIANDO || !PEND.length) return;
+  ENVIANDO = true;
+  var enviou = 0, perdeu = 0, falhou = false;
+  for (var p of PEND.slice()) {
+    try {
+      await rpc("aluno_finalizar", {p_codigo:CODE, p_id:p.id, p_treino:p.treino, p_data:p.data, p_series:p.series});
+      enviou++;
+    } catch (e) {
+      // Link desativado ou treino removido pelo treinador: não há como gravar.
+      if (e && (e.code === "28000" || e.code === "22023")) perdeu++;
+      else { falhou = true; break; }
+    }
+    PEND = PEND.filter(function(x){ return x.id !== p.id; });
+    guarda(kPend(), PEND);
+  }
+  ENVIANDO = false;
+  renderPendente();
+  if (perdeu) toast("Um treino não pôde ser gravado porque o treino ou o link foi alterado pelo treinador.");
+  else if (falhou && avisar) toast("Sem internet agora. O treino ficou guardado neste celular e será enviado automaticamente.");
+  else if (enviou) toast("Treino salvo! O treinador já pode ver suas cargas.");
+  if (enviou) carregar();
 }
-function redraw(){ var y = window.scrollY; DIRTY = true; viewEditor(); window.scrollTo(0, y); }
-function armed(b, txt){ if (b.dataset.armed) return true; b.dataset.armed = "1"; b.dataset.old = b.textContent; b.textContent = txt; setTimeout(function(){ if (b.isConnected) { delete b.dataset.armed; b.textContent = b.dataset.old; } }, 3000); return false; }
-function find(id){ return D.alunos.filter(function(a){ return a.id === id; })[0]; }
 
-function buildHtml(){
-  var head = Array.prototype.map.call(document.head.querySelectorAll("[data-k]"), function(n){ return n.outerHTML; }).join("\n");
-  var json = JSON.stringify(D).replace(/</g, "\\u003c");
-  return "<!doctype html>\n<html lang=\"pt-BR\"><head>" + head + "<style id=\"css\">" + $("css").textContent + "</style></head><body><div id=\"app\"></div><div class=\"toast\" id=\"toast\" hidden></div><script id=\"dados\" type=\"application/json\">" + json + "</" + "script><script id=\"js\">" + $("js").textContent + "</" + "script></body></html>";
+function resumoWhatsApp(){
+  var txt = "Treino de " + W.dia + " (" + W.nome + ") – " + DADOS.nome + "\n", cur = [];
+  W.ex.forEach(function(e){
+    var l = sets(e).map(function(x, j){ return x.kg ? (j + 1) + ") " + x.kg + " kg × " + (x.reps || "?") : null; }).filter(Boolean);
+    txt += "\n" + e.nome + ": " + (l.length ? l.join(" | ") : "não feito");
+    cur = cur.concat(comoSeries(e));
+  });
+  return txt + "\n\nVolume total: " + fmt(tonSeries(cur)) + "\n" + grpTxt().join(" | ");
 }
-async function publicar(){
-  try {
-    var art = await window.claude.use("artifact");
-    if (!art) { toast("Publicar não está disponível aqui. Abra o app pelo seu perfil."); return; }
-    await art.publish(buildHtml());
-    DIRTY = false; toast("Alterações publicadas.");
-  } catch (e) { toast("Não foi possível publicar" + (e && e.code ? " (" + e.code + ")" : "") + "."); }
+function whatsapp(){
+  var txt = resumoWhatsApp(), url = "https://wa.me/" + (CFG.WHATSAPP || "") + "?text=" + encodeURIComponent(txt), w = null;
+  try { w = window.open(url, "_blank"); } catch (e) {}
+  try { navigator.clipboard.writeText(txt); } catch (e) {}
+  var prev = $("envio"); if (prev) prev.remove();
+  var box = document.createElement("div"); box.id = "envio"; box.className = "envio";
+  box.innerHTML = '<p>' + (w ? "Se o WhatsApp não abriu, use as opções abaixo." : "O WhatsApp não abriu sozinho. Toque no botão abaixo ou copie o resumo e cole na conversa com o treinador.") + '</p><textarea readonly rows="6">' + esc(txt) + '</textarea><div class="acts"><a class="lnkbtn" href="' + url + '" target="_blank" rel="noopener">Abrir WhatsApp</a><button type="button" data-act="copyres">Copiar resumo</button></div>';
+  document.querySelector("main").appendChild(box); box.scrollIntoView({block:"center"});
 }
 
-function onInput(ev){
-  var t = ev.target, r = t.closest(".row");
-  if (r && W) { var x = sets(+r.dataset.i)[+r.dataset.j]; if (t.classList.contains("kg")) x.kg = t.value.replace(",", "."); else if (t.classList.contains("rp")) x.reps = t.value; save(); progress(); return; }
-  var f = t.dataset.f; if (!f) return;
-  var T = EDIT && EDIT.treinos[+t.dataset.ti], E = T && T.ex[+t.dataset.ei], v = t.value;
-  if (f === "base") D.base = v; else if (f === "fone") D.fone = v.replace(/\D/g, "");
-  else if (f === "nome") EDIT.nome = v; else if (f === "orient") EDIT.orient = v;
-  else if (f === "dia") T.dia = v; else if (f === "tn") T.nome = v;
-  else if (f === "en") E.n = v; else if (f === "eg") E.g = v; else if (f === "er") E.r = v;
-  else if (f === "es") E.s = Math.max(1, Math.min(10, parseInt(v, 10) || 1));
-  DIRTY = true; var p = $("pub"); if (p) p.disabled = false;
-}
-function onClick(ev){
+app.addEventListener("input", function(ev){
+  var t = ev.target, r = t.closest(".row"); if (!r || !W) return;
+  var x = sets(W.ex[+r.dataset.i])[+r.dataset.j];
+  if (t.classList.contains("kg")) x.kg = t.value.replace(",", "."); else if (t.classList.contains("rp")) x.reps = t.value;
+  salvaRascunho(); progress();
+});
+app.addEventListener("click", function(ev){
   var b = ev.target.closest("button"); if (!b) return;
-  var a = b.dataset.act, id = b.id, ti = +b.dataset.ti, ei = +b.dataset.ei;
-  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(+r.dataset.i)[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); save(); progress(); return; }
-  if (b.dataset.w) { W = A.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; viewAluno(); return; }
-  if (id === "back") { viewPainel(); return; }
-  if (id === "fin" && W) {
-    S.last[W.id] = W.ex.map(function(e, i){ return sets(i).map(function(x){ return {kg:x.kg, reps:x.reps}; }); });
-    S.cur[W.id] = []; save(); viewAluno(); window.scrollTo(0, 0);
-    toast("Treino salvo neste aparelho. Na próxima vez, suas cargas aparecem em “Última vez”."); return;
-  }
-  if (id === "wpp" && W) {
-    var txt = "Treino de " + W.dia + " (" + W.nome + ") – " + A.nome + "\n";
-    W.ex.forEach(function(e, i){ var l = sets(i).map(function(x, j){ return x.kg ? (j + 1) + ") " + x.kg + " kg × " + (x.reps || "?") : null; }).filter(Boolean); txt += "\n" + e.n + ": " + (l.length ? l.join(" | ") : "não feito"); });
-    txt += "\n\nVolume total: " + fmt(tonn(W.ex.map(function(e, i){ return sets(i); }))) + "\n" + grpTxt().join(" | ");
-    var url = "https://wa.me/" + (D.fone || "") + "?text=" + encodeURIComponent(txt), w = null;
-    try { w = window.open(url, "_blank"); } catch (e) {}
-    try { navigator.clipboard.writeText(txt); } catch (e) {}
-    var prev = $("envio"); if (prev) prev.remove();
-    var box = document.createElement("div"); box.id = "envio"; box.className = "envio";
-    box.innerHTML = '<p>' + (w ? "Se o WhatsApp não abriu, use as opções abaixo." : "O WhatsApp não abriu sozinho. Toque no botão abaixo ou copie o resumo e cole na conversa com o treinador.") + '</p><textarea readonly rows="6">' + esc(txt) + '</textarea><div class="acts"><a class="lnkbtn" href="' + url + '" target="_blank" rel="noopener">Abrir WhatsApp</a><button type="button" data-act="copyres">Copiar resumo</button></div>';
-    document.querySelector("main").appendChild(box); box.scrollIntoView({block:"center"}); return;
-  }
-  if (!a) return;
-  if (a === "coach") { OWNER = true; viewPainel(); }
-  else if (a === "copyres") { var ta = document.querySelector("#envio textarea"); ta.select(); try { navigator.clipboard.writeText(ta.value).then(function(){ toast("Resumo copiado. Cole no WhatsApp."); }, function(){ toast("Selecione o texto e copie."); }); } catch (e) { toast("Selecione o texto e copie."); } }
-  else if (a === "pub") publicar();
-  else if (a === "ver") { A = find(b.dataset.id); load(); W = A.treinos[0] || null; viewAluno(); window.scrollTo(0, 0); }
-  else if (a === "edit") { EDIT = find(b.dataset.id); viewEditor(); window.scrollTo(0, 0); }
-  else if (a === "copy") {
-    var link = (D.base || "").replace(/#.*$/, "") + "#" + b.dataset.id, lk = $("lk"); lk.value = link; lk.select();
-    try { navigator.clipboard.writeText(link).then(function(){ toast("Link copiado."); }, function(){ toast("Copie o link no campo abaixo."); }); } catch (e) { toast("Copie o link no campo abaixo."); }
-  }
-  else if (a === "novo") { EDIT = {id:uid(), nome:"Novo aluno", orient:DEF, treinos:[{id:"t" + uid(), dia:"Segunda", nome:"Treino A", ex:[]}]}; D.alunos.push(EDIT); DIRTY = true; viewEditor(); window.scrollTo(0, 0); }
-  else if (a === "volta") { EDIT = null; viewPainel(); window.scrollTo(0, 0); }
-  else if (a === "adde") { EDIT.treinos[ti].ex.push({n:"", g:"", s:3, r:"6–10"}); redraw(); }
-  else if (a === "dele") { EDIT.treinos[ti].ex.splice(ei, 1); redraw(); }
-  else if (a === "addt") { EDIT.treinos.push({id:"t" + uid(), dia:"Dia", nome:"Novo treino", ex:[]}); redraw(); }
-  else if (a === "delt") { if (armed(b, "Toque de novo para remover")) { EDIT.treinos.splice(ti, 1); redraw(); } }
-  else if (a === "dela") { if (armed(b, "Toque de novo para excluir")) { D.alunos.splice(D.alunos.indexOf(EDIT), 1); EDIT = null; DIRTY = true; viewPainel(); window.scrollTo(0, 0); } }
+  var a = b.dataset.act;
+  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); salvaRascunho(); progress(); return; }
+  if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; viewAluno(); return; }
+  if (b.id === "fin" && W) { finalizar(); return; }
+  if (b.id === "wpp" && W) { whatsapp(); return; }
+  if (a === "enviar") enviarPendentes(true);
+  else if (a === "recarregar") carregar();
+  else if (a === "copyres") { var ta = document.querySelector("#envio textarea"); copiar(ta.value, ta, "Resumo copiado. Cole no WhatsApp."); }
+});
+window.addEventListener("online", function(){ enviarPendentes(false); });
+
+function iniciar(){
+  CODE = location.hash.replace("#", "").trim();
+  DADOS = null; W = null;
+  if (!CODE) { viewBloqueio(); return; }
+  if (!sb) { semConfig(); return; }
+  CUR = pega(kCur()) || {}; PEND = pega(kPend()) || [];
+  carregar().then(function(){ enviarPendentes(false); });
 }
-app.addEventListener("click", onClick);
-app.addEventListener("input", onInput);
-function route(){
-  var h = location.hash.replace("#", ""); if (h === "treinador") OWNER = true; A = find(h) || null;
-  if (A) { load(); W = A.treinos[0] || null; viewAluno(); } else if (OWNER) viewPainel(); else viewBloqueio();
-}
-route();
-try { window.claude.use("user").then(function(u){ if (u && u.isOwner() && !OWNER) { OWNER = true; route(); } }); } catch (e) {}
+window.addEventListener("hashchange", iniciar);
+iniciar();
 </script></body></html>
-</body></html>
