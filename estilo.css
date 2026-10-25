@@ -253,3 +253,21 @@ body.sem-rolagem{overflow:hidden}
 h2.secao{font-size:24px;margin:18px 0 0}
 .resumo-sg{font-size:14px;color:var(--mute);margin:2px 0 8px}
 .resumo-sg b{color:var(--ink)}
+
+/* Resumo do treino numa tabela (para foto) */
+.resbtn{display:block;width:100%;margin:12px 0 0;height:42px;border:1px solid var(--acc);background:var(--card);color:var(--acc);border-radius:12px;font:600 15px Barlow,sans-serif;cursor:pointer}
+.folha{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--bg)}
+.folha-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;background:var(--card);border-bottom:1px solid var(--line);font-size:14px;color:var(--mute)}
+.folha-top button{border:1px solid var(--acc);background:var(--acc);color:var(--on);border-radius:10px;height:38px;padding:0 14px;font:600 15px Barlow,sans-serif;cursor:pointer}
+.folha-corpo{flex:1;overflow:auto;padding:12px 10px 24px;background:var(--card)}
+.folha-corpo h2{font-size:26px}
+.folha-al{margin:0 0 8px;color:var(--mute);font-size:14px}
+.tfolha{width:100%;border-collapse:collapse;font-size:13px;line-height:1.25}
+.tfolha th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);padding:4px 3px;border-bottom:2px solid var(--acc)}
+.tfolha td{padding:6px 3px;border-bottom:1px solid var(--line);vertical-align:top}
+.tfolha tr:nth-child(even) td{background:var(--bg)}
+.tfolha td b{font-weight:600}
+.tfolha td small{display:block;color:var(--mute);font-size:11px}
+.tfolha .n{font:400 17px "Bebas Neue",sans-serif;color:var(--acc);text-align:center}
+.tfolha .num{text-align:right;white-space:nowrap}
+.folha-leg{font-size:11px;color:var(--mute);margin:8px 0 0}

@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#2f0f5a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=5">
+<link rel="stylesheet" href="estilo.css?v=6">
 </head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
 <div class="timer" id="timer" hidden role="timer" aria-live="polite">
   <div class="tm-txt"><span class="tm-rot" id="tmrot">Descanso</span><span class="tm-num" id="tmnum">1:30</span></div>
@@ -17,9 +17,9 @@
   <div class="tm-acts"><button type="button" data-tm="-15">−15s</button><button type="button" data-tm="15">+15s</button><button type="button" data-tm="pular" id="tmpular">Pular</button></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=5"></script>
+<script src="config.js?v=6"></script>
 <script>var AV_ALUNO = true;</script>
-<script src="comum.js?v=5"></script>
+<script src="comum.js?v=6"></script>
 <script>
 // Tela do aluno. Acesso pelo link com o código: .../#CODIGO
 var CODE = "", DADOS = null, W = null, CUR = {}, PEND = [], ENVIANDO = false, OFFLINE = false;
@@ -91,6 +91,7 @@ function viewAluno(){
     (OFFLINE ? '<div class="aviso"><p>Sem internet: mostrando o último treino salvo neste celular.</p></div>' : '') +
     '<div id="pendente"></div>' +
     '<div class="tabs"' + (ws.length < 2 ? " hidden" : "") + '>' + ws.map(function(w){ return '<button type="button" data-w="' + w.id + '" aria-pressed="' + (w === W) + '">' + esc(w.dia) + '</button>'; }).join("") + '</div>' +
+    (W && W.ex.length ? '<button class="resbtn" type="button" data-act="resumo">📋 Resumo do treino (para foto)</button>' : '') +
     (lines.length ? '<details class="info"><summary>Orientações do treino</summary><ul>' + lines.map(function(l){ return "<li>" + esc(l).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>"; }).join("") + "</ul></details>" : "") +
     '<div class="prog"><i id="pb"></i></div><p class="progt" id="pt"></p><p class="vol" id="vol"></p><div class="grp" id="grp"></div><div id="lista"></div></main>' +
     '<div class="bar"><button id="fin" type="button">Finalizar treino</button></div>';
@@ -100,6 +101,29 @@ function viewAluno(){
 function renderPendente(){
   var el = $("pendente"); if (!el) return;
   el.innerHTML = PEND.length ? '<div class="aviso pend"><p>' + (PEND.length === 1 ? "1 treino aguardando envio" : PEND.length + " treinos aguardando envio") + ' (sem internet na hora de finalizar). Ele será enviado automaticamente.</p><button class="lnk" data-act="enviar" type="button">Tentar enviar agora</button></div>' : "";
+}
+// ---------- Resumo do treino numa tabela só (para tirar foto) ----------
+// Maior carga das séries de trabalho da última vez.
+function ultimaCarga(e){
+  var cfg = cfgDe(e), m = null;
+  (DADOS.ultima[e.id] || []).forEach(function(x){
+    var c = cfg[x.numero - 1]; if (c && c.tipo !== "trabalho") return;
+    if (x.carga != null && (m == null || Number(x.carga) > m)) m = Number(x.carga);
+  });
+  return m == null ? "–" : kg(m) + " kg";
+}
+function mostraResumo(){
+  var o = document.createElement("div"); o.className = "folha"; o.id = "folha";
+  o.innerHTML = '<div class="folha-top"><span>Resumo do treino</span><button type="button" id="fechafolha">✕ Fechar</button></div>' +
+    '<div class="folha-corpo"><h2>' + esc(W.dia + ": " + W.nome) + '</h2><p class="folha-al">' + esc(DADOS.nome) + '</p>' +
+    '<table class="tfolha"><thead><tr><th>#</th><th>Exercício</th><th>Séries × reps</th><th class="num">Desc.</th><th class="num">Últ. carga</th></tr></thead><tbody>' +
+    W.ex.map(function(e, i){
+      return '<tr><td class="n">' + (i + 1) + '</td><td><b>' + esc(e.nome) + '</b>' + (e.grupo ? '<small>' + esc(e.grupo) + '</small>' : '') + '</td>' +
+        '<td>' + esc(resumoSeries(cfgDe(e))) + '</td><td class="num">' + (descansoDe(e) ? fmtTempo(descansoDe(e)) : '–') + '</td><td class="num">' + ultimaCarga(e) + '</td></tr>';
+    }).join("") + '</tbody></table>' +
+    '<p class="folha-leg">Aquec. = aquecimento · Reconh. = reconhecimento · Trab. = série de trabalho</p></div>';
+  document.body.appendChild(o); document.body.classList.add("sem-rolagem");
+  $("fechafolha").addEventListener("click", function(){ o.remove(); document.body.classList.remove("sem-rolagem"); });
 }
 function concluido(e){ return sets(e).every(function(x){ return x.done; }); }
 function proximo(i){
@@ -268,6 +292,7 @@ app.addEventListener("click", function(ev){
   if (b.dataset.abre) { var k = +b.dataset.abre; if (k === ABERTO) { ABERTO = -1; renderLista(); } else abre(k); return; }
   if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; ABERTO = null; viewAluno(); return; }
   if (b.id === "fin" && W) { finalizar(); return; }
+  if (a === "resumo") { mostraResumo(); return; }
   if (a === "concluir") { var ci = +b.dataset.i; sets(W.ex[ci]).forEach(function(x){ x.done = true; }); salvaRascunho(); abre(proximo(ci)); return; }
   if (a === "enviar") enviarPendentes(true);
   else if (a === "recarregar") carregar();
