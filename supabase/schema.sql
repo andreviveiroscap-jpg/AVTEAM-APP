@@ -33,7 +33,10 @@ create table if not exists public.exercicios (
   grupo       text not null default '',
   series      int  not null default 3 check (series between 1 and 10),
   repeticoes  text not null default '',
-  ordem       int  not null default 0
+  ordem       int  not null default 0,
+  -- Tipo e repetições de cada série: [{"tipo": "aquecimento", "reps": "12"}, ...]
+  -- tipo: aquecimento, reconhecimento ou trabalho.
+  series_cfg  jsonb
 );
 
 -- Uma sessão é um treino finalizado pelo aluno.
@@ -59,8 +62,13 @@ create table if not exists public.series (
   carga           numeric(6,2) check (carga between 0 and 1000),
   repeticoes      int  check (repeticoes between 0 and 200),
   -- Posição da série no treino, para o histórico sair na mesma ordem.
-  posicao         int  not null default 0
+  posicao         int  not null default 0,
+  tipo            text not null default 'trabalho'
 );
+
+-- Colunas acrescentadas depois da primeira versão (para bancos já criados).
+alter table public.exercicios add column if not exists series_cfg jsonb;
+alter table public.series     add column if not exists tipo text not null default 'trabalho';
 
 create index if not exists alunos_treinador_idx    on public.alunos (treinador_id);
 create index if not exists treinos_aluno_idx       on public.treinos (aluno_id);
@@ -157,7 +165,7 @@ as $$
         'ex', coalesce((
           select json_agg(json_build_object(
             'id', e.id, 'nome', e.nome, 'grupo', e.grupo,
-            'series', e.series, 'repeticoes', e.repeticoes
+            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg
           ) order by e.ordem, e.nome)
           from exercicios e where e.treino_id = t.id
         ), '[]'::json)
@@ -218,8 +226,9 @@ begin
           case when p_data between now() - interval '30 days' and now() + interval '5 minutes'
                then p_data else now() end);
 
-  insert into series (sessao_id, exercicio_id, exercicio_nome, grupo, numero, carga, repeticoes, posicao)
-  select p_id, e.id, e.nome, e.grupo, x.numero, x.carga, x.repeticoes, x.posicao
+  insert into series (sessao_id, exercicio_id, exercicio_nome, grupo, numero, carga, repeticoes, posicao, tipo)
+  select p_id, e.id, e.nome, e.grupo, x.numero, x.carga, x.repeticoes, x.posicao,
+         coalesce(e.series_cfg -> (x.numero - 1) ->> 'tipo', 'trabalho')
   from (
     -- Um valor fora da faixa (erro de digitação) é descartado sem perder o
     -- resto do treino.
@@ -294,7 +303,7 @@ as $$
         'ex', coalesce((
           select json_agg(json_build_object(
             'id', e.id, 'nome', e.nome, 'grupo', e.grupo,
-            'series', e.series, 'repeticoes', e.repeticoes
+            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg
           ) order by e.ordem, e.nome)
           from exercicios e where e.treino_id = t.id
         ), '[]'::json)
@@ -307,7 +316,7 @@ as $$
         'series', coalesce((
           select json_agg(json_build_object(
             'exercicio_id', se.exercicio_id, 'exercicio', se.exercicio_nome, 'grupo', se.grupo,
-            'numero', se.numero, 'carga', se.carga, 'repeticoes', se.repeticoes
+            'numero', se.numero, 'tipo', se.tipo, 'carga', se.carga, 'repeticoes', se.repeticoes
           ) order by se.posicao, se.numero)
           from series se where se.sessao_id = s.id
         ), '[]'::json)
@@ -318,8 +327,25 @@ as $$
   from alunos a where a.id = p_id;
 $$;
 
+-- Limpa a lista de séries recebida do painel: no máximo 10, tipo válido.
+create or replace function public.normaliza_series(c jsonb)
+returns jsonb
+language sql
+immutable
+set search_path = public
+as $$
+  select case when jsonb_typeof(c) = 'array' and jsonb_array_length(c) > 0 then (
+    select jsonb_agg(jsonb_build_object(
+      'tipo', case when x->>'tipo' in ('aquecimento', 'reconhecimento', 'trabalho') then x->>'tipo' else 'trabalho' end,
+      'reps', left(coalesce(x->>'reps', ''), 20)
+    ) order by n)
+    from jsonb_array_elements(c) with ordinality as t(x, n)
+    where n <= 10
+  ) end;
+$$;
+
 -- Salva aluno, treinos e exercícios de uma vez (tudo ou nada).
--- p: {"id", "nome", "orientacoes", "treinos": [{"id", "dia", "nome", "ex": [{"id", "nome", "grupo", "series", "repeticoes"}]}]}
+-- p: {"id", "nome", "orientacoes", "treinos": [{"id", "dia", "nome", "ex": [{"id", "nome", "grupo", "series_cfg"}]}]}
 -- Treinos e exercícios que não vierem na lista são removidos. O histórico
 -- de séries já feitas é mantido.
 create or replace function public.treinador_salvar_aluno(p json)
@@ -357,14 +383,18 @@ begin
 
   delete from exercicios where treino_id = any (v_treinos) and id <> all (v_exercicios);
 
-  insert into exercicios (id, treino_id, nome, grupo, series, repeticoes, ordem)
+  -- "series" e "repeticoes" ficam como resumo (número de séries e as
+  -- repetições da primeira série de trabalho).
+  insert into exercicios (id, treino_id, nome, grupo, series, repeticoes, ordem, series_cfg)
   select (e.v->>'id')::uuid, (t.v->>'id')::uuid, coalesce(e.v->>'nome', ''), coalesce(e.v->>'grupo', ''),
-         greatest(1, least(10, coalesce(nullif(e.v->>'series', '')::numeric::int, 3))),
-         coalesce(e.v->>'repeticoes', ''), (e.n - 1)::int
+         coalesce(jsonb_array_length(c.cfg), greatest(1, least(10, coalesce(nullif(e.v->>'series', '')::numeric::int, 3)))),
+         coalesce((select x->>'reps' from jsonb_array_elements(c.cfg) x where x->>'tipo' = 'trabalho' limit 1), e.v->>'repeticoes', ''),
+         (e.n - 1)::int, c.cfg
   from json_array_elements(coalesce(p->'treinos', '[]'::json)) as t(v),
-       json_array_elements(coalesce(t.v->'ex', '[]'::json)) with ordinality as e(v, n)
+       json_array_elements(coalesce(t.v->'ex', '[]'::json)) with ordinality as e(v, n),
+       lateral (select normaliza_series((e.v->'series_cfg')::jsonb) as cfg) c
   on conflict (id) do update set treino_id = excluded.treino_id, nome = excluded.nome, grupo = excluded.grupo,
-    series = excluded.series, repeticoes = excluded.repeticoes, ordem = excluded.ordem;
+    series = excluded.series, repeticoes = excluded.repeticoes, ordem = excluded.ordem, series_cfg = excluded.series_cfg;
 
   return v_id;
 end;

@@ -14,6 +14,8 @@
 <script>
 // Tela do aluno. Acesso pelo link com o código: .../#CODIGO
 var CODE = "", DADOS = null, W = null, CUR = {}, PEND = [], ENVIANDO = false, OFFLINE = false;
+// Exercício aberto (um de cada vez). null: abre sozinho o primeiro não concluído.
+var ABERTO = null;
 
 function kDados(){ return "av-dados-" + CODE; }
 function kCur(){ return "av-cur-" + CODE; }
@@ -21,7 +23,7 @@ function kPend(){ return "av-pend-" + CODE; }
 function salvaRascunho(){ guarda(kCur(), CUR); }
 
 function sets(e){
-  var t = CUR[W.id] = CUR[W.id] || {}, c = t[e.id] = t[e.id] || [], n = e.series || 1;
+  var t = CUR[W.id] = CUR[W.id] || {}, c = t[e.id] = t[e.id] || [], n = cfgDe(e).length;
   for (var j = 0; j < n; j++) if (!c[j]) c[j] = {kg:"", reps:"", done:false};
   return c.slice(0, n);
 }
@@ -33,7 +35,7 @@ function grpTxt(){
 }
 function prevTxt(e, j){
   var l = DADOS.ultima[e.id] || [], p = l.filter(function(x){ return x.numero === j + 1; })[0];
-  if (!p || (p.carga == null && p.repeticoes == null)) return "–";
+  if (!p || (p.carga == null && p.repeticoes == null)) return "";
   return (p.carga != null ? kg(p.carga) + " kg" : "?") + " × " + (p.repeticoes != null ? p.repeticoes : "?");
 }
 
@@ -89,12 +91,33 @@ function renderPendente(){
   var el = $("pendente"); if (!el) return;
   el.innerHTML = PEND.length ? '<div class="aviso pend"><p>' + (PEND.length === 1 ? "1 treino aguardando envio" : PEND.length + " treinos aguardando envio") + ' (sem internet na hora de finalizar). Ele será enviado automaticamente.</p><button class="lnk" data-act="enviar" type="button">Tentar enviar agora</button></div>' : "";
 }
+function concluido(e){ return sets(e).every(function(x){ return x.done; }); }
+function proximo(i){
+  var n = W.ex.length;
+  for (var k = 1; k <= n; k++) { var m = (i + k) % n; if (!concluido(W.ex[m])) return m; }
+  return -1;
+}
 function renderLista(){
   if (!W) { $("lista").innerHTML = '<p class="meta">O treinador ainda não montou o seu treino.</p>'; $("fin").disabled = true; $("wpp").disabled = true; return; }
+  if (ABERTO === null) ABERTO = W.ex.length ? (concluido(W.ex[0]) ? proximo(0) : 0) : -1;
   $("lista").innerHTML = W.ex.length ? W.ex.map(function(e, i){
-    return '<section class="ex"><h2>' + esc(e.nome) + '</h2><p class="meta">' + e.series + ' séries' + (e.repeticoes ? ' · ' + esc(e.repeticoes) + ' repetições' : '') + ' · volume: <span id="ev' + i + '"></span></p>' +
-      '<div class="row h"><span class="n">Série</span><span>Última vez</span><span>Carga (kg)</span><span>Reps</span><span></span></div>' +
-      sets(e).map(function(x, j){ return '<div class="row' + (x.done ? " done" : "") + '" data-i="' + i + '" data-j="' + j + '"><span class="n">' + (j + 1) + '</span><span class="prev">' + prevTxt(e, j) + '</span><input class="kg" inputmode="decimal" aria-label="Carga em kg, série ' + (j + 1) + '" value="' + esc(x.kg) + '"><input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" value="' + esc(x.reps) + '"><button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>'; }).join("") + '</section>';
+    var cfg = cfgDe(e), aberto = i === ABERTO, feito = concluido(e);
+    var h = '<section class="ex acc' + (aberto ? " aberto" : "") + (feito ? " feito" : "") + '" id="ex' + i + '">' +
+      '<button class="exh" type="button" data-abre="' + i + '" aria-expanded="' + aberto + '"><span class="exn"><h2>' + esc(e.nome) + '</h2>' +
+      '<span class="meta">' + cfg.length + ' séries' + (e.grupo ? ' · ' + esc(e.grupo) : '') + ' · volume: <span id="ev' + i + '"></span></span></span>' +
+      '<span class="exst" id="es' + i + '"></span></button>';
+    if (!aberto) return h + '</section>';
+    return h + '<div class="row s h"><span>Série</span><span>Carga (kg)</span><span>Reps</span><span></span></div>' +
+      sets(e).map(function(x, j){
+        var c = cfg[j] || {}, prev = prevTxt(e, j);
+        return '<div class="row s t-' + (TIPOS[c.tipo] ? c.tipo : "trabalho") + (x.done ? " done" : "") + '" data-i="' + i + '" data-j="' + j + '">' +
+          '<span class="sinfo">' + tipoChip(c.tipo) + (c.reps ? '<span class="alvo">' + esc(c.reps) + ' reps</span>' : '') +
+          '<span class="prev">Última: ' + (prev || "–") + '</span></span>' +
+          '<input class="kg" inputmode="decimal" aria-label="Carga em kg, série ' + (j + 1) + '" value="' + esc(x.kg) + '">' +
+          '<input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" placeholder="' + esc(c.reps || "") + '" value="' + esc(x.reps) + '">' +
+          '<button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>';
+      }).join("") +
+      '<button class="sm conc" type="button" data-act="concluir" data-i="' + i + '">Concluir exercício</button></section>';
   }).join("") +
     // Também no fim da lista: barras de outros sites (como a do Netlify)
     // podem cobrir os botões fixos lá embaixo.
@@ -102,13 +125,29 @@ function renderLista(){
     : '<p class="meta">Este treino ainda não tem exercícios.</p>';
   progress();
 }
+// Abre um exercício (fechando os outros) e rola até ele.
+function abre(i){
+  ABERTO = i; renderLista();
+  var el = $("ex" + i); if (!el) return;
+  var calmo = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({behavior:calmo ? "auto" : "smooth", block:"start"});
+}
+// Quando todas as séries de um exercício são marcadas, ele fecha e o próximo abre.
+function aposMarcar(i){
+  if (!concluido(W.ex[i])) return;
+  setTimeout(function(){ if (ABERTO === i) abre(proximo(i)); }, 450);
+}
 function progress(){
   var t = 0, d = 0, cur = [], ant = DADOS.anterior[W.id];
   W.ex.forEach(function(e){ sets(e).forEach(function(x){ t++; if (x.done) d++; }); cur = cur.concat(comoSeries(e)); });
   $("pb").style.width = (t ? d / t * 100 : 0) + "%";
   $("pt").textContent = d + " de " + t + " séries concluídas";
   $("vol").innerHTML = "Volume total: " + fmt(tonSeries(cur)) + (ant ? "<small>Treino anterior (" + esc(dataCurta(ant.data)) + "): " + fmt(Number(ant.tonelagem)) + "</small>" : "");
-  W.ex.forEach(function(e, i){ $("ev" + i).textContent = fmtS(tonSeries(comoSeries(e))); });
+  W.ex.forEach(function(e, i){
+    $("ev" + i).textContent = fmtS(tonSeries(comoSeries(e)));
+    var s = sets(e), f = s.filter(function(x){ return x.done; }).length;
+    $("es" + i).innerHTML = f === s.length ? '<span class="ok">✓</span>' : f + "/" + s.length;
+  });
   $("grp").innerHTML = grpTxt().map(function(s){ return "<span>" + esc(s) + "</span>"; }).join("");
 }
 
@@ -125,7 +164,7 @@ function finalizar(){
   PEND.push({id:novoId(), treino:W.id, data:new Date().toISOString(), series:series});
   guarda(kPend(), PEND);
   aplicaPendentes(DADOS);
-  delete CUR[W.id]; salvaRascunho();
+  delete CUR[W.id]; salvaRascunho(); ABERTO = null;
   viewAluno(); window.scrollTo(0, 0);
   enviarPendentes(true);
 }
@@ -181,10 +220,12 @@ app.addEventListener("input", function(ev){
 app.addEventListener("click", function(ev){
   var b = ev.target.closest("button"); if (!b) return;
   var a = b.dataset.act;
-  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); salvaRascunho(); progress(); return; }
-  if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; viewAluno(); return; }
+  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); salvaRascunho(); progress(); if (x.done) aposMarcar(+r.dataset.i); return; }
+  if (b.dataset.abre) { var k = +b.dataset.abre; if (k === ABERTO) { ABERTO = -1; renderLista(); } else abre(k); return; }
+  if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; ABERTO = null; viewAluno(); return; }
   if ((b.id === "fin" || a === "fin") && W) { finalizar(); return; }
   if (b.id === "wpp" && W) { whatsapp(); return; }
+  if (a === "concluir") { var ci = +b.dataset.i; sets(W.ex[ci]).forEach(function(x){ x.done = true; }); salvaRascunho(); abre(proximo(ci)); return; }
   if (a === "enviar") enviarPendentes(true);
   else if (a === "recarregar") carregar();
   else if (a === "copyres") { var ta = document.querySelector("#envio textarea"); copiar(ta.value, ta, "Resumo copiado. Cole no WhatsApp."); }
@@ -193,7 +234,7 @@ window.addEventListener("online", function(){ enviarPendentes(false); });
 
 function iniciar(){
   CODE = location.hash.replace("#", "").trim();
-  DADOS = null; W = null;
+  DADOS = null; W = null; ABERTO = null;
   if (!CODE) { viewBloqueio(); return; }
   if (!sb) { semConfig(); return; }
   CUR = pega(kCur()) || {}; PEND = pega(kPend()) || [];

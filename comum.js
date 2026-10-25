@@ -22,6 +22,16 @@ function haQuanto(d){
   var dias = Math.floor((new Date().setHours(0,0,0,0) - new Date(d).setHours(0,0,0,0)) / 864e5);
   return dias <= 0 ? "hoje" : dias === 1 ? "ontem" : "há " + dias + " dias";
 }
+// Tipos de série (aquecimento, reconhecimento, trabalho).
+var TIPOS = {aquecimento:"Aquecimento", reconhecimento:"Reconhecimento", trabalho:"Trabalho"};
+var TIPOS_CURTOS = {aquecimento:"Aquec.", reconhecimento:"Reconh.", trabalho:"Trab."};
+// Séries de um exercício. Exercícios criados antes dos tipos viram séries de trabalho.
+function cfgDe(e){
+  if (e.series_cfg && e.series_cfg.length) return e.series_cfg;
+  var c = []; for (var j = 0; j < (e.series || 1); j++) c.push({tipo:"trabalho", reps:e.repeticoes || ""});
+  return c;
+}
+function tipoChip(t){ t = TIPOS[t] ? t : "trabalho"; return '<span class="tipo t-' + t + '">' + TIPOS[t] + '</span>'; }
 function guarda(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function pega(k){ try { var r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
 function novoId(){

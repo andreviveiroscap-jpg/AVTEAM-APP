@@ -134,3 +134,64 @@ h1{font-size:34px}
 .per button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:5px 12px;font:600 13px Barlow,sans-serif}
 .per button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on)}
 .big.fim{background:var(--acc);color:var(--on);border-style:solid;margin-top:6px}
+
+/* Tipos de série */
+.tipo{display:inline-block;border-radius:6px;padding:1px 7px;font:600 12px Barlow,sans-serif;letter-spacing:.01em;white-space:nowrap}
+.t-aquecimento .tipo,.tipo.t-aquecimento{background:#fff1d6;color:#8a5300}
+.t-reconhecimento .tipo,.tipo.t-reconhecimento{background:#e3eefe;color:#1f4f9c}
+.t-trabalho .tipo,.tipo.t-trabalho{background:#ece4fb;color:#2f0f5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tipo.t-aquecimento,:root:not([data-theme="light"]) .t-aquecimento .tipo{background:#3d2a0c;color:#ffc66b}
+:root:not([data-theme="light"]) .tipo.t-reconhecimento,:root:not([data-theme="light"]) .t-reconhecimento .tipo{background:#142a4a;color:#9cc2ff}
+:root:not([data-theme="light"]) .tipo.t-trabalho,:root:not([data-theme="light"]) .t-trabalho .tipo{background:#33205a;color:#cdb9ff}}
+:root[data-theme="dark"] .tipo.t-aquecimento,:root[data-theme="dark"] .t-aquecimento .tipo{background:#3d2a0c;color:#ffc66b}
+:root[data-theme="dark"] .tipo.t-reconhecimento,:root[data-theme="dark"] .t-reconhecimento .tipo{background:#142a4a;color:#9cc2ff}
+:root[data-theme="dark"] .tipo.t-trabalho,:root[data-theme="dark"] .t-trabalho .tipo{background:#33205a;color:#cdb9ff}
+
+/* Tela do aluno: um exercício aberto de cada vez */
+.ex.acc{padding:0;overflow:hidden}
+.exh{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:inherit;text-align:left;padding:14px 12px;cursor:pointer;font:inherit}
+.exh h2{font-size:24px}
+.exn{flex:1;min-width:0}
+.exh .meta{display:block;margin:2px 0 0}
+.exst{flex:none;min-width:42px;text-align:center;font:600 14px Barlow,sans-serif;color:var(--mute)}
+.exst .ok{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--ok);color:var(--on);font-size:17px}
+.ex.feito:not(.aberto) .exh h2{color:var(--mute)}
+.ex.aberto{border-color:var(--acc);border-width:2px}
+.ex.aberto .exh{border-bottom:1px solid var(--line)}
+.ex.aberto>.row:first-of-type{margin-top:6px}
+.row.s{grid-template-columns:1fr 74px 60px 42px;margin:0 8px;padding:7px 4px}
+.row.s.h{padding-bottom:0}
+.sinfo{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.sinfo .alvo{font-weight:600;font-size:14px}
+.sinfo .prev{font-size:12px}
+.row.s input::placeholder{color:var(--mute);opacity:.55;font-weight:500}
+.conc{display:block;width:calc(100% - 24px);margin:8px 12px 12px;height:42px}
+
+/* Editor do treinador */
+.tred{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:0 0 14px}
+.tred-h{display:grid;grid-template-columns:110px 1fr;gap:8px;margin-bottom:10px}
+.tred-h .fl{margin:0}
+.exed{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:var(--bg)}
+.exed-top{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:center}
+.exed-sub{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:8px 0 6px 34px}
+.exnum{font:400 24px "Bebas Neue",sans-serif;color:var(--acc);text-align:center}
+.exed .f{background:var(--card)}
+.exed .nm{font-weight:600;font-size:16px}
+.exed .grupo{min-width:0}
+.mov{display:flex;gap:4px}
+.mov button{width:34px;height:38px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font-size:15px;cursor:pointer}
+.mov .dan{color:#b3261e;border-color:#b3261e}
+.mov button:disabled{opacity:.3}
+.sets-ed{margin:6px 0 0 20px}
+.set-ed{display:grid;grid-template-columns:18px 1fr 62px 30px;gap:6px;align-items:center;margin-bottom:6px;padding:3px 4px 3px 0;border-radius:9px;border-left:4px solid var(--line)}
+.set-ed.t-aquecimento{border-left-color:#e0a030}
+.set-ed.t-reconhecimento{border-left-color:#4a86e0}
+.set-ed.t-trabalho{border-left-color:var(--acc)}
+.set-ed .sn{font:400 18px "Bebas Neue",sans-serif;color:var(--mute);text-align:center}
+.set-ed select,.set-ed input{height:38px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:600 14px Barlow,sans-serif;padding:0 4px;min-width:0}
+.set-ed input{text-align:center}
+.set-ed button{height:34px;border:0;background:none;color:var(--mute);font-size:16px;cursor:pointer}
+.set-cab{display:grid;grid-template-columns:18px 1fr 62px 30px;gap:6px;font-size:12px;color:var(--mute);padding:0 4px 2px 4px}
+.adds{border:1px dashed var(--acc);background:transparent;color:var(--acc);border-radius:9px;height:36px;padding:0 12px;font:600 14px Barlow,sans-serif;cursor:pointer;margin-top:2px}
+.prevt{margin:8px 0 0 34px;font-size:13px;color:var(--mute)}
+.prevt .tipo{margin-right:4px}
