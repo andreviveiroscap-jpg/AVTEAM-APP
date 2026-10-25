@@ -224,6 +224,7 @@ function viewVolume(){
 // ---------- Editor de treino ----------
 // Séries de um exercício novo: aquecimento, reconhecimento e duas de trabalho.
 var SERIES_PADRAO = [{tipo:"aquecimento", reps:"12"}, {tipo:"reconhecimento", reps:"6"}, {tipo:"trabalho", reps:"6–10"}, {tipo:"trabalho", reps:"6–10"}];
+var DESCANSOS = [0, 30, 45, 60, 75, 90, 120, 150, 180, 240, 300];
 var GRUPOS = ["Peito", "Costas", "Ombro", "Bíceps", "Tríceps", "Antebraço", "Quadríceps", "Posterior", "Glúteo", "Panturrilha", "Abdômen", "Lombar"];
 function novasSeries(){ return JSON.parse(JSON.stringify(SERIES_PADRAO)); }
 // Acrescenta uma série do tipo pedido na ordem aquecimento → reconhecimento → trabalho.
@@ -235,7 +236,7 @@ function adicionaSerie(sc, tipo){
 }
 function copiaEdicao(){
   var c = JSON.parse(JSON.stringify({id:AL.id, nome:AL.nome, orientacoes:AL.orientacoes, treinos:AL.treinos}));
-  c.treinos.forEach(function(t){ t.ex.forEach(function(e){ e.series_cfg = JSON.parse(JSON.stringify(cfgDe(e))); }); });
+  c.treinos.forEach(function(t){ t.ex.forEach(function(e){ e.series_cfg = JSON.parse(JSON.stringify(cfgDe(e))); e.descanso = descansoDe(e); }); });
   return c;
 }
 function viewEditor(){
@@ -251,7 +252,7 @@ function viewEditor(){
           var at = ' data-ti="' + ti + '" data-ei="' + ei + '"', chave = ti + ":" + ei;
           if (EDABERTO !== chave) {
             return '<button type="button" class="exed fechado" data-act="editex"' + at + '><span class="exnum">' + (ei + 1) + '</span>' +
-              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + '</span></span><span class="seta">✎</span></button>';
+              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + '</span></span><span class="seta">✎</span></button>';
           }
           return '<div class="exed aberto"><div class="exed-top"><span class="exnum">' + (ei + 1) + '</span>' +
             '<input class="f nm" placeholder="Nome do exercício" data-f="en"' + at + ' value="' + esc(e.nome) + '"></div>' +
@@ -266,7 +267,8 @@ function viewEditor(){
                 '<button type="button" class="dels" data-act="dels"' + as + ' aria-label="Apagar série ' + (si + 1) + '"' + (e.series_cfg.length > 1 ? '' : ' disabled') + '>✕</button></div>';
             }).join("") +
             (e.series_cfg.length < 10 ? '<div class="addtipos">' + Object.keys(TIPOS).map(function(k){ return '<button type="button" class="t-' + k + '" data-act="adds" data-tipo="' + k + '"' + at + '>+ <span class="tipo t-' + k + '">' + TIPOS[k] + '</span></button>'; }).join("") + '</div>' : '') +
-            '</div><button type="button" class="lnk pronto" data-act="fechaex">Pronto ✓</button></div>';
+            '</div><label class="desc-ed">Descanso entre séries<select data-f="ed"' + at + '>' + DESCANSOS.map(function(d){ return '<option value="' + d + '"' + (d === descansoDe(e) ? ' selected' : '') + '>' + (d ? fmtTempo(d) : 'Sem cronômetro') + '</option>'; }).join("") + '</select></label>' +
+            '<button type="button" class="lnk pronto" data-act="fechaex">Pronto ✓</button></div>';
         }).join("") +
         '<div class="acts"><button data-act="adde" data-ti="' + ti + '">+ Exercício</button><button class="dan" data-act="delt" data-ti="' + ti + '">Remover treino</button></div></section>';
     }).join("") +
@@ -315,6 +317,7 @@ app.addEventListener("input", function(ev){
   else if (f === "dia") T.dia = v; else if (f === "tn") T.nome = v;
   else if (f === "en") E.nome = v; else if (f === "eg") E.grupo = v;
   else if (f === "sr") S.reps = v;
+  else if (f === "ed") E.descanso = Number(v);
   else if (f === "st") { S.tipo = v; t.closest(".set-ed").className = "set-ed t-" + v; }
   sujo();
 });
@@ -338,7 +341,7 @@ app.addEventListener("click", async function(ev){
     catch (e) { falha(e, "gerar o novo link"); }
   }
   else if (a === "salvar") salvar(b);
-  else if (a === "adde") { var nx = EDIT.treinos[ti].ex; nx.push({id:novoId(), nome:"", grupo:"", series_cfg:novasSeries()}); EDABERTO = ti + ":" + (nx.length - 1); redraw(); }
+  else if (a === "adde") { var nx = EDIT.treinos[ti].ex; nx.push({id:novoId(), nome:"", grupo:"", series_cfg:novasSeries(), descanso:90}); EDABERTO = ti + ":" + (nx.length - 1); redraw(); }
   else if (a === "adds") { adicionaSerie(EDIT.treinos[ti].ex[ei].series_cfg, b.dataset.tipo); redraw(); }
   else if (a === "editex") { EDABERTO = ti + ":" + ei; redraw(); }
   else if (a === "fechaex") { EDABERTO = null; viewEditor(); }

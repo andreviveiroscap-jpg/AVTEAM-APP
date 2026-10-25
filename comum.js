@@ -38,6 +38,9 @@ function resumoSeries(cfg){
   // Espaços fixos e "–" sem quebra: cada grupo ("2× Trab. 6–10") fica numa linha só.
   return g.map(function(x){ return ((x.n > 1 ? x.n + "× " : "") + (TIPOS_CURTOS[x.tipo] || "Trab.") + (x.reps ? " " + x.reps : "")).replace(/ /g, "\u00a0").replace(/–/g, "\u2060–\u2060"); }).join(" · ");
 }
+// Descanso entre séries (segundos). Exercícios antigos: 1:30.
+function descansoDe(e){ return e.descanso == null ? 90 : e.descanso; }
+function fmtTempo(s){ return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
 function tipoChip(t){ t = TIPOS[t] ? t : "trabalho"; return '<span class="tipo t-' + t + '">' + TIPOS[t] + '</span>'; }
 function guarda(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function pega(k){ try { var r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
