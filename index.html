@@ -81,7 +81,7 @@ function viewAluno(){
     '<div class="tabs"' + (ws.length < 2 ? " hidden" : "") + '>' + ws.map(function(w){ return '<button type="button" data-w="' + w.id + '" aria-pressed="' + (w === W) + '">' + esc(w.dia) + '</button>'; }).join("") + '</div>' +
     (lines.length ? '<details class="info"><summary>Orientações do treino</summary><ul>' + lines.map(function(l){ return "<li>" + esc(l).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>"; }).join("") + "</ul></details>" : "") +
     '<div class="prog"><i id="pb"></i></div><p class="progt" id="pt"></p><p class="vol" id="vol"></p><div class="grp" id="grp"></div><div id="lista"></div></main>' +
-    '<div class="bar"><button id="wpp" type="button">Enviar ao treinador</button><button id="fin" type="button">Finalizar treino</button></div>';
+    '<div class="bar"><button id="fin" type="button">Finalizar treino</button><button id="wpp" type="button">Enviar ao treinador</button></div>';
   renderPendente();
   renderLista();
 }
@@ -95,7 +95,11 @@ function renderLista(){
     return '<section class="ex"><h2>' + esc(e.nome) + '</h2><p class="meta">' + e.series + ' séries' + (e.repeticoes ? ' · ' + esc(e.repeticoes) + ' repetições' : '') + ' · volume: <span id="ev' + i + '"></span></p>' +
       '<div class="row h"><span class="n">Série</span><span>Última vez</span><span>Carga (kg)</span><span>Reps</span><span></span></div>' +
       sets(e).map(function(x, j){ return '<div class="row' + (x.done ? " done" : "") + '" data-i="' + i + '" data-j="' + j + '"><span class="n">' + (j + 1) + '</span><span class="prev">' + prevTxt(e, j) + '</span><input class="kg" inputmode="decimal" aria-label="Carga em kg, série ' + (j + 1) + '" value="' + esc(x.kg) + '"><input class="rp" inputmode="numeric" aria-label="Repetições, série ' + (j + 1) + '" value="' + esc(x.reps) + '"><button class="chk" type="button" aria-label="Concluir série ' + (j + 1) + '">✓</button></div>'; }).join("") + '</section>';
-  }).join("") : '<p class="meta">Este treino ainda não tem exercícios.</p>';
+  }).join("") +
+    // Também no fim da lista: barras de outros sites (como a do Netlify)
+    // podem cobrir os botões fixos lá embaixo.
+    '<button class="big fim" data-act="fin" type="button">Finalizar treino</button>'
+    : '<p class="meta">Este treino ainda não tem exercícios.</p>';
   progress();
 }
 function progress(){
@@ -179,7 +183,7 @@ app.addEventListener("click", function(ev){
   var a = b.dataset.act;
   if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); salvaRascunho(); progress(); return; }
   if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; viewAluno(); return; }
-  if (b.id === "fin" && W) { finalizar(); return; }
+  if ((b.id === "fin" || a === "fin") && W) { finalizar(); return; }
   if (b.id === "wpp" && W) { whatsapp(); return; }
   if (a === "enviar") enviarPendentes(true);
   else if (a === "recarregar") carregar();

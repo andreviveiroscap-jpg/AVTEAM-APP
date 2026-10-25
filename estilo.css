@@ -133,3 +133,4 @@ h1{font-size:34px}
 .per{display:flex;gap:6px;margin:14px 0 12px;flex-wrap:wrap}
 .per button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:5px 12px;font:600 13px Barlow,sans-serif}
 .per button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.big.fim{background:var(--acc);color:var(--on);border-style:solid;margin-top:6px}
