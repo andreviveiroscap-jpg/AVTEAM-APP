@@ -13,12 +13,12 @@
 <meta name="theme-color" content="#2f0f5a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=4">
+<link rel="stylesheet" href="estilo.css?v=5">
 </head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=4"></script>
-<script src="comum.js?v=4"></script>
-<script src="exercicios.js?v=4"></script>
+<script src="config.js?v=5"></script>
+<script src="comum.js?v=5"></script>
+<script src="exercicios.js?v=5"></script>
 <script>
 // Painel do treinador (login por e-mail e senha).
 var DEF = "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.";
@@ -210,12 +210,61 @@ function grafico(el, pts){
 
 // ---------- Volume (tonelagem) ----------
 function inicioSemana(d){ var x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; }
-function barras(itens){
+function barras(itens, fv){
+  fv = fv || fmtS;
   var max = Math.max.apply(null, itens.map(function(i){ return i.v; }).concat([1]));
-  return '<div class="barras">' + itens.map(function(i){ return '<span class="rot">' + esc(i.rot) + '</span><span class="trilho"><i style="width:' + (i.v / max * 100).toFixed(1) + '%"></i></span><span class="val">' + fmtS(i.v) + '</span>'; }).join("") + '</div>';
+  return '<div class="barras">' + itens.map(function(i){ return '<span class="rot">' + esc(i.rot) + '</span><span class="trilho"><i style="width:' + (i.v / max * 100).toFixed(1) + '%"></i></span><span class="val">' + fv(i.v) + '</span>'; }).join("") + '</div>';
 }
+// ---------- Volume em número de séries (só séries de trabalho) ----------
+function nSeries(n){ return n + (n === 1 ? " série" : " séries"); }
+function ehTrabalho(x){ return !x.tipo || x.tipo === "trabalho"; }
+// Séries de trabalho planejadas por grupo muscular em um treino.
+function seriesPorGrupo(t){
+  var g = {}, o = [];
+  t.ex.forEach(function(e){
+    var n = cfgDe(e).filter(ehTrabalho).length, k = e.grupo || "Outros";
+    if (!n) return; if (!(k in g)) { g[k] = 0; o.push(k); } g[k] += n;
+  });
+  return o.map(function(k){ return {rot:k, v:g[k]}; });
+}
+function htmlSeriesPlanejadas(){
+  if (!AL.treinos.length) return "";
+  var tot = {}, ordem = [];
+  var porTreino = AL.treinos.map(function(t){
+    var l = seriesPorGrupo(t);
+    l.forEach(function(x){ if (!(x.rot in tot)) { tot[x.rot] = 0; ordem.push(x.rot); } tot[x.rot] += x.v; });
+    return '<div class="spt"><b>' + esc(t.dia + " · " + t.nome) + '</b>' +
+      (l.length ? '<div class="grp">' + l.map(function(x){ return '<span>' + esc(x.rot) + ' <strong>' + x.v + '</strong></span>'; }).join("") + '</div>' : '<p class="quando">Sem séries de trabalho.</p>') + '</div>';
+  }).join("");
+  return '<section class="card"><h2>Séries por treino</h2><p class="sub">Séries de trabalho planejadas por grupo muscular</p>' + porTreino + '</section>' +
+    '<section class="card"><h2>Séries planejadas na semana</h2><p class="sub">Se o aluno fizer cada treino uma vez</p>' +
+    barras(ordem.map(function(k){ return {rot:k, v:tot[k]}; }).sort(function(a, b){ return b.v - a.v; }), nSeries) + '</section>';
+}
+// Séries de trabalho feitas por grupo nas últimas 4 semanas.
+function htmlSeriesFeitas(){
+  if (!AL.sessoes.length) return "";
+  var sems = [], hoje = inicioSemana(new Date());
+  for (var k = 0; k < 4; k++) { var d = new Date(hoje); d.setDate(d.getDate() - 7 * k); sems.push(d.getTime()); }
+  var g = {}, ordem = [];
+  AL.sessoes.forEach(function(s){
+    var c = sems.indexOf(inicioSemana(s.data).getTime()); if (c < 0) return;
+    s.series.forEach(function(x){
+      if (!ehTrabalho(x)) return;
+      var n = x.grupo || "Outros"; if (!g[n]) { g[n] = [0, 0, 0, 0]; ordem.push(n); } g[n][c]++;
+    });
+  });
+  if (!ordem.length) return '<section class="card"><h2>Séries feitas por semana</h2><p class="vazio">Nenhuma série de trabalho nas últimas 4 semanas.</p></section>';
+  ordem.sort(function(a, b){ return g[b][0] - g[a][0] || g[b][1] - g[a][1]; });
+  var tot = [0, 1, 2, 3].map(function(c){ return ordem.reduce(function(a, n){ return a + g[n][c]; }, 0); });
+  return '<section class="card"><h2>Séries feitas por semana</h2><p class="sub">Séries de trabalho registradas pelo aluno (semana começando na segunda)</p>' +
+    '<table class="tab ssem"><thead><tr><th>Grupo</th>' + sems.map(function(t, c){ return '<th class="num">' + (c ? new Date(t).toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}) : "Esta") + '</th>'; }).join("") + '</tr></thead><tbody>' +
+    ordem.map(function(n){ return '<tr><td>' + esc(n) + '</td>' + g[n].map(function(v){ return '<td class="num">' + (v || "–") + '</td>'; }).join("") + '</tr>'; }).join("") +
+    '<tr class="tot"><td>Total</td>' + tot.map(function(v){ return '<td class="num">' + v + '</td>'; }).join("") + '</tr></tbody></table></section>';
+}
+
 function viewVolume(){
-  if (!AL.sessoes.length) { $("conteudo").innerHTML = '<p class="vazio">Ainda não há treinos registrados.</p>'; return; }
+  var series = htmlSeriesPlanejadas() + htmlSeriesFeitas();
+  if (!AL.sessoes.length) { $("conteudo").innerHTML = series + '<p class="vazio">Ainda não há treinos registrados para mostrar a tonelagem.</p>'; return; }
   var limite = PER === "tudo" ? 0 : inicioSemana(new Date()).getTime() - (Number(PER) - 1) * 7 * 864e5;
   var ss = AL.sessoes.filter(function(s){ return new Date(s.data).getTime() >= limite; });
   var sem = {}, grp = {}, ordemG = [];
@@ -227,7 +276,7 @@ function viewVolume(){
   var semanas = [];
   if (ss.length) for (var t = inicioSemana(ss[ss.length - 1].data); t <= new Date(); t.setDate(t.getDate() + 7)) semanas.push({rot:"Sem. " + t.toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}), v:sem[t.getTime()] || 0});
   var total = ss.reduce(function(a, s){ return a + tonSeries(s.series); }, 0);
-  $("conteudo").innerHTML = '<div class="per">' + [["4", "4 semanas"], ["12", "12 semanas"], ["tudo", "Tudo"]].map(function(p){ return '<button type="button" data-per="' + p[0] + '" aria-pressed="' + (PER === p[0]) + '">' + p[1] + '</button>'; }).join("") + '</div>' +
+  $("conteudo").innerHTML = series + '<h2 class="secao">Tonelagem (kg)</h2><div class="per">' + [["4", "4 semanas"], ["12", "12 semanas"], ["tudo", "Tudo"]].map(function(p){ return '<button type="button" data-per="' + p[0] + '" aria-pressed="' + (PER === p[0]) + '">' + p[1] + '</button>'; }).join("") + '</div>' +
     (ss.length ? '<p class="vol">Total no período: ' + fmt(total) + '<small>' + ss.length + ' treino(s)</small></p>' +
       '<section class="card"><h2>Por semana</h2><p class="sub">Semana começando na segunda-feira</p>' + barras(semanas.reverse()) + '</section>' +
       '<section class="card"><h2>Por grupo muscular</h2><p class="sub">Soma do período</p>' + barras(ordemG.map(function(g){ return {rot:g, v:grp[g]}; }).sort(function(a, b){ return b.v - a.v; })) + '</section>' +
@@ -296,6 +345,7 @@ function viewEditor(){
             '</div><label class="desc-ed">Descanso entre séries<select data-f="ed"' + at + '>' + DESCANSOS.map(function(d){ return '<option value="' + d + '"' + (d === descansoDe(e) ? ' selected' : '') + '>' + (d ? fmtTempo(d) : 'Sem cronômetro') + '</option>'; }).join("") + '</select></label>' +
             '<button type="button" class="lnk pronto" data-act="fechaex">Pronto ✓</button></div>';
         }).join("") +
+        (function(){ var l = seriesPorGrupo(t); return l.length ? '<p class="resumo-sg">Séries de trabalho: ' + l.map(function(x){ return esc(x.rot) + ' <b>' + x.v + '</b>'; }).join(" · ") + '</p>' : ''; })() +
         '<div class="acts"><button data-act="adde" data-ti="' + ti + '">+ Exercício</button><button class="dan" data-act="delt" data-ti="' + ti + '">Remover treino</button></div></section>';
     }).join("") +
     '<button class="big" data-act="addt">+ Treino</button>' +

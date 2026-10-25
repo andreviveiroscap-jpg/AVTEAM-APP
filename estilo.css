@@ -243,3 +243,13 @@ body.sem-rolagem{overflow:hidden}
 .sugest button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 10px;font:500 15px Barlow,sans-serif;cursor:pointer}
 .sugest button b{font-weight:600}
 .sugest button span{flex:none;font-size:12px;color:var(--mute)}
+.spt{padding:8px 0;border-top:1px dashed var(--line)}
+.spt:first-of-type{border-top:0}
+.spt b{display:block;font-weight:600;margin-bottom:6px}
+.spt .grp{margin:0}
+.spt .grp strong{font-weight:700}
+.ssem th,.ssem td{padding-left:4px;padding-right:4px}
+.ssem tr.tot td{font-weight:700;border-bottom:0}
+h2.secao{font-size:24px;margin:18px 0 0}
+.resumo-sg{font-size:14px;color:var(--mute);margin:2px 0 8px}
+.resumo-sg b{color:var(--ink)}
