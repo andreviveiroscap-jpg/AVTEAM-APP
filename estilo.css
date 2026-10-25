@@ -42,7 +42,6 @@ h1{font-size:34px}
 .bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);display:flex;gap:10px;justify-content:center}
 .bar button{flex:1;max-width:270px;height:48px;border-radius:12px;font:700 16px Barlow,sans-serif;border:1px solid var(--acc);cursor:pointer}
 #fin{background:var(--acc);color:var(--on)}
-#wpp{background:transparent;color:var(--acc)}
 .toast{position:fixed;left:14px;right:14px;bottom:84px;margin:auto;max-width:520px;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;font-size:15px}
 .toast[hidden]{display:none}
 .info{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:0 14px;margin:14px 0 0}
@@ -73,9 +72,6 @@ h1{font-size:34px}
 #pub{background:var(--acc);color:var(--on)}
 #pub:disabled{opacity:.45}
 #volta{background:transparent;color:var(--acc)}
-.envio{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:12px 14px;margin-top:14px}
-.envio p{margin:0 0 8px;font-size:15px}
-.envio textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 14px Barlow,sans-serif;padding:8px}
 .lnkbtn{display:inline-block;background:var(--acc);color:var(--on);text-decoration:none;border-radius:10px;padding:8px 12px;font:600 14px Barlow,sans-serif}
 
 /* Estados gerais */
@@ -133,7 +129,6 @@ h1{font-size:34px}
 .per{display:flex;gap:6px;margin:14px 0 12px;flex-wrap:wrap}
 .per button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:5px 12px;font:600 13px Barlow,sans-serif}
 .per button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on)}
-.big.fim{background:var(--acc);color:var(--on);border-style:solid;margin-top:6px}
 
 /* Tipos de série */
 .tipo{display:inline-block;border-radius:6px;padding:1px 7px;font:600 12px Barlow,sans-serif;letter-spacing:.01em;white-space:nowrap}

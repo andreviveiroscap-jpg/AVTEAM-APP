@@ -52,7 +52,6 @@ São 6 passos, feitos uma única vez. Dá para fazer tudo pelo celular, mas no c
    SUPABASE_URL: "https://abcdxyz.supabase.co",
    SUPABASE_KEY: "sb_publishable_...",
    ```
-   Confira também o seu número de WhatsApp na linha `WHATSAPP`.
 5. Toque em **Commit changes** e confirme.
 
 > Essas duas informações são públicas e podem ficar no código sem problema: a segurança está nas regras do banco.
@@ -84,7 +83,6 @@ Daqui em diante, toda mudança salva aqui no GitHub vai para o site sozinha.
 - **O que o painel mostra:** lista de alunos com a data do último treino; **Histórico** de cada sessão com as séries; **Evolução** da maior carga por exercício (gráfico e tabela); **Volume** (tonelagem) por semana, por grupo muscular e por treino.
 - **Link vazou?** No aluno, toque em **Gerar novo link**. O link antigo para de funcionar na hora e o histórico continua.
 - **Sem internet na academia:** o treino fica guardado no celular do aluno e é enviado sozinho quando a internet voltar.
-- **"Enviar ao treinador" (WhatsApp)** continua funcionando como antes, se o aluno quiser usar.
 
 ## Sobre os dados
 

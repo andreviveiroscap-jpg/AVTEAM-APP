@@ -258,7 +258,7 @@ function viewEditor(){
   var a = EDIT;
   $("conteudo").innerHTML = '<div style="margin-top:14px"></div>' +
     '<label class="fl">Nome do aluno<input data-f="nome" value="' + esc(a.nome) + '" placeholder="Nome e sobrenome"></label>' +
-    '<label class="fl">Orientações (uma por linha; **texto** deixa em negrito)<textarea data-f="orient" rows="9">' + esc(a.orientacoes) + '</textarea></label>' +
+    '<label class="fl">Orientações do treino: o aluno vê este texto. Escreva o que quiser, uma orientação por linha (**palavra** fica em negrito).<textarea data-f="orient" rows="9">' + esc(a.orientacoes) + '</textarea></label>' +
     '<datalist id="grupos">' + GRUPOS.map(function(g){ return '<option value="' + g + '">'; }).join("") + '</datalist>' +
     a.treinos.map(function(t, ti){
       return '<section class="tred"><div class="tred-h"><label class="fl">Dia<input class="f" data-f="dia" data-ti="' + ti + '" value="' + esc(t.dia) + '"></label><label class="fl">Nome do treino<input class="f" data-f="tn" data-ti="' + ti + '" value="' + esc(t.nome) + '"></label></div>' +

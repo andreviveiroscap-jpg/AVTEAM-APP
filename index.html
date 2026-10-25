@@ -93,7 +93,7 @@ function viewAluno(){
     '<div class="tabs"' + (ws.length < 2 ? " hidden" : "") + '>' + ws.map(function(w){ return '<button type="button" data-w="' + w.id + '" aria-pressed="' + (w === W) + '">' + esc(w.dia) + '</button>'; }).join("") + '</div>' +
     (lines.length ? '<details class="info"><summary>Orientações do treino</summary><ul>' + lines.map(function(l){ return "<li>" + esc(l).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") + "</li>"; }).join("") + "</ul></details>" : "") +
     '<div class="prog"><i id="pb"></i></div><p class="progt" id="pt"></p><p class="vol" id="vol"></p><div class="grp" id="grp"></div><div id="lista"></div></main>' +
-    '<div class="bar"><button id="fin" type="button">Finalizar treino</button><button id="wpp" type="button">Enviar ao treinador</button></div>';
+    '<div class="bar"><button id="fin" type="button">Finalizar treino</button></div>';
   renderPendente();
   renderLista();
 }
@@ -108,7 +108,7 @@ function proximo(i){
   return -1;
 }
 function renderLista(){
-  if (!W) { $("lista").innerHTML = '<p class="meta">O treinador ainda não montou o seu treino.</p>'; $("fin").disabled = true; $("wpp").disabled = true; return; }
+  if (!W) { $("lista").innerHTML = '<p class="meta">O treinador ainda não montou o seu treino.</p>'; $("fin").disabled = true; return; }
   if (ABERTO === null) ABERTO = W.ex.length ? (concluido(W.ex[0]) ? proximo(0) : 0) : -1;
   $("lista").innerHTML = W.ex.length ? W.ex.map(function(e, i){
     var cfg = cfgDe(e), aberto = i === ABERTO, feito = concluido(e);
@@ -132,11 +132,7 @@ function renderLista(){
       }).join("") +
       '<label class="obs">Observação (opcional)<textarea class="nota" data-e="' + e.id + '" rows="2" maxlength="500" placeholder="Como foi? Dor, ajuste do aparelho, carga…">' + esc(nota) + '</textarea></label>' +
       '<button class="sm conc" type="button" data-act="concluir" data-i="' + i + '">Concluir exercício</button></section>';
-  }).join("") +
-    // Também no fim da lista: barras de outros sites (como a do Netlify)
-    // podem cobrir os botões fixos lá embaixo.
-    '<button class="big fim" data-act="fin" type="button">Finalizar treino</button>'
-    : '<p class="meta">Este treino ainda não tem exercícios.</p>';
+  }).join("") : '<p class="meta">Este treino ainda não tem exercícios.</p>';
   progress();
 }
 // Abre um exercício (fechando os outros) e rola até ele.
@@ -255,26 +251,6 @@ async function enviarPendentes(avisar){
   if (enviou) carregar();
 }
 
-function resumoWhatsApp(){
-  var txt = "Treino de " + W.dia + " (" + W.nome + ") – " + DADOS.nome + "\n", cur = [];
-  W.ex.forEach(function(e){
-    var l = sets(e).map(function(x, j){ return x.kg ? (j + 1) + ") " + x.kg + " kg × " + (x.reps || "?") : null; }).filter(Boolean);
-    txt += "\n" + e.nome + ": " + (l.length ? l.join(" | ") : "não feito");
-    var n = (notas()[e.id] || "").trim(); if (n) txt += "\n  Obs.: " + n;
-    cur = cur.concat(comoSeries(e));
-  });
-  return txt + "\n\nVolume total: " + fmt(tonSeries(cur)) + "\n" + grpTxt().join(" | ");
-}
-function whatsapp(){
-  var txt = resumoWhatsApp(), url = "https://wa.me/" + (CFG.WHATSAPP || "") + "?text=" + encodeURIComponent(txt), w = null;
-  try { w = window.open(url, "_blank"); } catch (e) {}
-  try { navigator.clipboard.writeText(txt); } catch (e) {}
-  var prev = $("envio"); if (prev) prev.remove();
-  var box = document.createElement("div"); box.id = "envio"; box.className = "envio";
-  box.innerHTML = '<p>' + (w ? "Se o WhatsApp não abriu, use as opções abaixo." : "O WhatsApp não abriu sozinho. Toque no botão abaixo ou copie o resumo e cole na conversa com o treinador.") + '</p><textarea readonly rows="6">' + esc(txt) + '</textarea><div class="acts"><a class="lnkbtn" href="' + url + '" target="_blank" rel="noopener">Abrir WhatsApp</a><button type="button" data-act="copyres">Copiar resumo</button></div>';
-  document.querySelector("main").appendChild(box); box.scrollIntoView({block:"center"});
-}
-
 app.addEventListener("input", function(ev){
   var t = ev.target;
   if (t.classList.contains("nota") && W) { notas()[t.dataset.e] = t.value; salvaRascunho(); return; }
@@ -291,12 +267,10 @@ app.addEventListener("click", function(ev){
     return; }
   if (b.dataset.abre) { var k = +b.dataset.abre; if (k === ABERTO) { ABERTO = -1; renderLista(); } else abre(k); return; }
   if (b.dataset.w) { W = DADOS.treinos.filter(function(w){ return w.id === b.dataset.w; })[0]; ABERTO = null; viewAluno(); return; }
-  if ((b.id === "fin" || a === "fin") && W) { finalizar(); return; }
-  if (b.id === "wpp" && W) { whatsapp(); return; }
+  if (b.id === "fin" && W) { finalizar(); return; }
   if (a === "concluir") { var ci = +b.dataset.i; sets(W.ex[ci]).forEach(function(x){ x.done = true; }); salvaRascunho(); abre(proximo(ci)); return; }
   if (a === "enviar") enviarPendentes(true);
   else if (a === "recarregar") carregar();
-  else if (a === "copyres") { var ta = document.querySelector("#envio textarea"); copiar(ta.value, ta, "Resumo copiado. Cole no WhatsApp."); }
 });
 window.addEventListener("online", function(){ enviarPendentes(false); });
 
