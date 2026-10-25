@@ -228,6 +228,9 @@ function viewEditor(){
         '<div class="acts"><button data-act="adde" data-ti="' + ti + '">+ Exercício</button><button class="dan" data-act="delt" data-ti="' + ti + '">Remover treino</button></div></section>';
     }).join("") +
     '<button class="big" data-act="addt">+ Treino</button>' +
+    // Segundo botão de salvar no fim da página: barras de outros sites
+    // (como a do Netlify) podem cobrir o botão fixo lá embaixo.
+    '<div class="acts"><button class="pri" data-act="salvar" type="button">Salvar alterações</button></div>' +
     (a.id ? '<div class="acts"><button class="dan" data-act="dela">Excluir aluno</button></div><p class="quando">Excluir apaga o aluno e todo o histórico de treinos dele.</p>' : '');
 }
 function sujo(){ DIRTY = true; var p = $("pub"); if (p) p.disabled = false; }
