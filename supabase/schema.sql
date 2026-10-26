@@ -38,7 +38,9 @@ create table if not exists public.exercicios (
   -- tipo: aquecimento, reconhecimento ou trabalho.
   series_cfg  jsonb,
   -- Descanso entre séries, em segundos (0 = sem cronômetro).
-  descanso    int  not null default 90 check (descanso between 0 and 900)
+  descanso    int  not null default 90 check (descanso between 0 and 900),
+  -- Observação do treinador para o aluno (ex.: "Banco 45 graus").
+  obs         text not null default ''
 );
 
 -- Uma sessão é um treino finalizado pelo aluno.
@@ -80,6 +82,7 @@ create table if not exists public.notas (
 -- Colunas acrescentadas depois da primeira versão (para bancos já criados).
 alter table public.exercicios add column if not exists series_cfg jsonb;
 alter table public.exercicios add column if not exists descanso int not null default 90 check (descanso between 0 and 900);
+alter table public.exercicios add column if not exists obs text not null default '';
 alter table public.series     add column if not exists tipo text not null default 'trabalho';
 
 create index if not exists alunos_treinador_idx    on public.alunos (treinador_id);
@@ -186,7 +189,7 @@ as $$
         'ex', coalesce((
           select json_agg(json_build_object(
             'id', e.id, 'nome', e.nome, 'grupo', e.grupo,
-            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg, 'descanso', e.descanso
+            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg, 'descanso', e.descanso, 'obs', e.obs
           ) order by e.ordem, e.nome)
           from exercicios e where e.treino_id = t.id
         ), '[]'::json)
@@ -333,7 +336,7 @@ as $$
         'ex', coalesce((
           select json_agg(json_build_object(
             'id', e.id, 'nome', e.nome, 'grupo', e.grupo,
-            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg, 'descanso', e.descanso
+            'series', e.series, 'repeticoes', e.repeticoes, 'series_cfg', e.series_cfg, 'descanso', e.descanso, 'obs', e.obs
           ) order by e.ordem, e.nome)
           from exercicios e where e.treino_id = t.id
         ), '[]'::json)
@@ -379,7 +382,7 @@ as $$
 $$;
 
 -- Salva aluno, treinos e exercícios de uma vez (tudo ou nada).
--- p: {"id", "nome", "orientacoes", "treinos": [{"id", "dia", "nome", "ex": [{"id", "nome", "grupo", "series_cfg", "descanso"}]}]}
+-- p: {"id", "nome", "orientacoes", "treinos": [{"id", "dia", "nome", "ex": [{"id", "nome", "grupo", "series_cfg", "descanso", "obs"}]}]}
 -- Treinos e exercícios que não vierem na lista são removidos. O histórico
 -- de séries já feitas é mantido.
 create or replace function public.treinador_salvar_aluno(p json)
@@ -419,18 +422,19 @@ begin
 
   -- "series" e "repeticoes" ficam como resumo (número de séries e as
   -- repetições da primeira série de trabalho).
-  insert into exercicios (id, treino_id, nome, grupo, series, repeticoes, ordem, series_cfg, descanso)
+  insert into exercicios (id, treino_id, nome, grupo, series, repeticoes, ordem, series_cfg, descanso, obs)
   select (e.v->>'id')::uuid, (t.v->>'id')::uuid, coalesce(e.v->>'nome', ''), coalesce(e.v->>'grupo', ''),
          coalesce(jsonb_array_length(c.cfg), greatest(1, least(10, coalesce(nullif(e.v->>'series', '')::numeric::int, 3)))),
          coalesce((select x->>'reps' from jsonb_array_elements(c.cfg) x where x->>'tipo' = 'trabalho' limit 1), e.v->>'repeticoes', ''),
          (e.n - 1)::int, c.cfg,
-         greatest(0, least(900, coalesce(nullif(e.v->>'descanso', '')::numeric::int, 90)))
+         greatest(0, least(900, coalesce(nullif(e.v->>'descanso', '')::numeric::int, 90))),
+         left(coalesce(e.v->>'obs', ''), 300)
   from json_array_elements(coalesce(p->'treinos', '[]'::json)) as t(v),
        json_array_elements(coalesce(t.v->'ex', '[]'::json)) with ordinality as e(v, n),
        lateral (select normaliza_series((e.v->'series_cfg')::jsonb) as cfg) c
   on conflict (id) do update set treino_id = excluded.treino_id, nome = excluded.nome, grupo = excluded.grupo,
     series = excluded.series, repeticoes = excluded.repeticoes, ordem = excluded.ordem, series_cfg = excluded.series_cfg,
-    descanso = excluded.descanso;
+    descanso = excluded.descanso, obs = excluded.obs;
 
   return v_id;
 end;

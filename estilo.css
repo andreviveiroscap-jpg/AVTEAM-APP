@@ -271,3 +271,7 @@ h2.secao{font-size:24px;margin:18px 0 0}
 .tfolha .n{font:400 17px "Bebas Neue",sans-serif;color:var(--acc);text-align:center}
 .tfolha .num{text-align:right;white-space:nowrap}
 .folha-leg{font-size:11px;color:var(--mute);margin:8px 0 0}
+.obs-ed{display:block;margin:10px 0 0 20px;font-size:14px;color:var(--mute)}
+.obs-ed textarea{display:block;width:100%;margin-top:4px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:500 14px Barlow,sans-serif;padding:7px 9px;resize:vertical}
+.obs-tr{margin:10px 12px 0;padding:8px 10px;border-radius:9px;background:var(--bg);border-left:3px solid var(--acc);font-size:14px}
+.tfolha td small.obs-f{color:var(--ink);font-style:italic;margin-top:2px}

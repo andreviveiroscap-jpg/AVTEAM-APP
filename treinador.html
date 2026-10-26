@@ -13,12 +13,12 @@
 <meta name="theme-color" content="#2f0f5a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=6">
+<link rel="stylesheet" href="estilo.css?v=7">
 </head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=6"></script>
-<script src="comum.js?v=6"></script>
-<script src="exercicios.js?v=6"></script>
+<script src="config.js?v=7"></script>
+<script src="comum.js?v=7"></script>
+<script src="exercicios.js?v=7"></script>
 <script>
 // Painel do treinador (login por e-mail e senha).
 var DEF = "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.";
@@ -326,7 +326,7 @@ function viewEditor(){
           var at = ' data-ti="' + ti + '" data-ei="' + ei + '"', chave = ti + ":" + ei;
           if (EDABERTO !== chave) {
             return '<button type="button" class="exed fechado" data-act="editex"' + at + '><span class="exnum">' + (ei + 1) + '</span>' +
-              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + '</span></span><span class="seta">✎</span></button>';
+              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + (e.obs ? ' · 📝' : '') + '</span></span><span class="seta">✎</span></button>';
           }
           return '<div class="exed aberto"><div class="exed-top"><span class="exnum">' + (ei + 1) + '</span>' +
             '<input class="f nm" placeholder="Digite para buscar o exercício" autocomplete="off" data-f="en"' + at + ' value="' + esc(e.nome) + '"></div>' +
@@ -342,7 +342,8 @@ function viewEditor(){
                 '<button type="button" class="dels" data-act="dels"' + as + ' aria-label="Apagar série ' + (si + 1) + '"' + (e.series_cfg.length > 1 ? '' : ' disabled') + '>✕</button></div>';
             }).join("") +
             (e.series_cfg.length < 10 ? '<div class="addtipos">' + Object.keys(TIPOS).map(function(k){ return '<button type="button" class="t-' + k + '" data-act="adds" data-tipo="' + k + '"' + at + '>+ <span class="tipo t-' + k + '">' + TIPOS[k] + '</span></button>'; }).join("") + '</div>' : '') +
-            '</div><label class="desc-ed">Descanso entre séries<select data-f="ed"' + at + '>' + DESCANSOS.map(function(d){ return '<option value="' + d + '"' + (d === descansoDe(e) ? ' selected' : '') + '>' + (d ? fmtTempo(d) : 'Sem cronômetro') + '</option>'; }).join("") + '</select></label>' +
+            '</div><label class="obs-ed">Observação para o aluno (opcional)<textarea data-f="eo"' + at + ' rows="2" maxlength="300" placeholder="Ex.: Banco 45 graus. Chegou ao 10, aumenta a carga.">' + esc(e.obs || "") + '</textarea></label>' +
+            '<label class="desc-ed">Descanso entre séries<select data-f="ed"' + at + '>' + DESCANSOS.map(function(d){ return '<option value="' + d + '"' + (d === descansoDe(e) ? ' selected' : '') + '>' + (d ? fmtTempo(d) : 'Sem cronômetro') + '</option>'; }).join("") + '</select></label>' +
             '<button type="button" class="lnk pronto" data-act="fechaex">Pronto ✓</button></div>';
         }).join("") +
         (function(){ var l = seriesPorGrupo(t); return l.length ? '<p class="resumo-sg">Séries de trabalho: ' + l.map(function(x){ return esc(x.rot) + ' <b>' + x.v + '</b>'; }).join(" · ") + '</p>' : ''; })() +
@@ -395,6 +396,7 @@ app.addEventListener("input", function(ev){
   else if (f === "eg") E.grupo = v;
   else if (f === "sr") S.reps = v;
   else if (f === "ed") E.descanso = Number(v);
+  else if (f === "eo") E.obs = v;
   else if (f === "st") { S.tipo = v; t.closest(".set-ed").className = "set-ed t-" + v; }
   sujo();
 });
