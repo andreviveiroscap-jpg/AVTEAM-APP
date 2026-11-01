@@ -7,6 +7,23 @@ if (CFG.SUPABASE_URL && CFG.SUPABASE_KEY && window.supabase) {
   sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY, window.AV_ALUNO ? {auth:{persistSession:false, autoRefreshToken:false, detectSessionInUrl:false}} : {});
 }
 var app = document.getElementById("app");
+
+// Atualização automática: o celular (principalmente o app na tela de início do
+// iPhone) pode guardar a versão antiga. Ao abrir ou voltar para o app,
+// compara com versao.json e recarrega se houver versão nova.
+// Ao publicar uma mudança, aumente VERSAO aqui, em versao.json e no "?v=" das páginas.
+var VERSAO = 11;
+function confereVersao(){
+  if (window.DIRTY) return; // não perde alterações não salvas do editor
+  fetch("versao.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){
+    if (!j || j.v === VERSAO) return;
+    var k = "av-recarregou-" + j.v;
+    try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, "1"); } catch (e) {}
+    location.reload();
+  }).catch(function(){});
+}
+confereVersao();
+document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") confereVersao(); });
 function $(id){ return document.getElementById(id); }
 function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function toast(m){ var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(function(){ t.hidden = true; }, 4200); }
