@@ -38,7 +38,7 @@ create table if not exists public.exercicios (
   -- tipo: aquecimento, reconhecimento ou trabalho.
   series_cfg  jsonb,
   -- Descanso entre séries, em segundos (0 = sem cronômetro).
-  descanso    int  not null default 90 check (descanso between 0 and 900),
+  descanso    int  not null default 120 check (descanso between 0 and 900),
   -- Observação do treinador para o aluno (ex.: "Banco 45 graus").
   obs         text not null default '',
   -- Conjugado com o próximo exercício do treino (bi-set / tri-set).
@@ -83,7 +83,8 @@ create table if not exists public.notas (
 
 -- Colunas acrescentadas depois da primeira versão (para bancos já criados).
 alter table public.exercicios add column if not exists series_cfg jsonb;
-alter table public.exercicios add column if not exists descanso int not null default 90 check (descanso between 0 and 900);
+alter table public.exercicios add column if not exists descanso int not null default 120 check (descanso between 0 and 900);
+alter table public.exercicios alter column descanso set default 120;
 alter table public.exercicios add column if not exists obs text not null default '';
 alter table public.exercicios add column if not exists conjugado boolean not null default false;
 alter table public.series     add column if not exists tipo text not null default 'trabalho';
@@ -430,7 +431,7 @@ begin
          coalesce(jsonb_array_length(c.cfg), greatest(1, least(10, coalesce(nullif(e.v->>'series', '')::numeric::int, 3)))),
          coalesce((select x->>'reps' from jsonb_array_elements(c.cfg) x where x->>'tipo' = 'trabalho' limit 1), e.v->>'repeticoes', ''),
          (e.n - 1)::int, c.cfg,
-         greatest(0, least(900, coalesce(nullif(e.v->>'descanso', '')::numeric::int, 90))),
+         greatest(0, least(900, coalesce(nullif(e.v->>'descanso', '')::numeric::int, 120))),
          left(coalesce(e.v->>'obs', ''), 300),
          coalesce((e.v->>'conjugado')::boolean, false)
   from json_array_elements(coalesce(p->'treinos', '[]'::json)) as t(v),
