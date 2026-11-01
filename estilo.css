@@ -203,7 +203,10 @@ h1{font-size:34px}
 .obs{display:block;margin:10px 12px 0;font-size:13px;color:var(--mute)}
 .obs textarea{display:block;width:100%;margin-top:4px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 15px Barlow,sans-serif;padding:8px 10px;resize:vertical}
 .obs textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
-.exed.fechado{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;width:100%;text-align:left;color:var(--ink);font:inherit;cursor:pointer;padding:12px 10px}
+.exed.fechado{display:flex;align-items:center;gap:6px;padding:4px 8px 4px 0}
+.exabre{flex:1;min-width:0;display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;text-align:left;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:8px 0 8px 10px}
+.tred-ord{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px}
+.tred-ord b{font:400 22px "Bebas Neue",sans-serif;letter-spacing:.02em;color:var(--acc)}
 .exres{display:flex;flex-direction:column;min-width:0}
 .exres b{font-weight:600;font-size:16px}
 .exres span{font-size:13px;color:var(--mute)}

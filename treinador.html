@@ -13,12 +13,12 @@
 <meta name="theme-color" content="#2f0f5a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=9">
+<link rel="stylesheet" href="estilo.css?v=10">
 </head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=9"></script>
-<script src="comum.js?v=9"></script>
-<script src="exercicios.js?v=9"></script>
+<script src="config.js?v=10"></script>
+<script src="comum.js?v=10"></script>
+<script src="exercicios.js?v=10"></script>
 <script>
 // Painel do treinador (login por e-mail e senha).
 var DEF = "O(a) aluno(a) deve realizar mobilidade livre antes de todos os treinos.\n**Warm up set:** série de aquecimento, na qual você utilizará 50% da carga de trabalho.\n**Feeder set:** série de reconhecimento, na qual você utilizará aproximadamente 80% da carga de trabalho.\n**Working set:** séries válidas, na qual você utilizará sua carga máxima para as repetições indicadas.\nOs descansos entre as séries devem ser de no mínimo 1:30 min.";
@@ -321,14 +321,16 @@ function viewEditor(){
     '<label class="fl">Orientações do treino: o aluno vê este texto. Escreva o que quiser, uma orientação por linha (**palavra** fica em negrito).<textarea data-f="orient" rows="9">' + esc(a.orientacoes) + '</textarea></label>' +
     '<datalist id="grupos">' + GRUPOS.map(function(g){ return '<option value="' + g + '">'; }).join("") + '</datalist>' +
     a.treinos.map(function(t, ti){
-      return '<section class="tred"><div class="tred-h"><label class="fl">Dia<input class="f" data-f="dia" data-ti="' + ti + '" value="' + esc(t.dia) + '"></label><label class="fl">Nome do treino<input class="f" data-f="tn" data-ti="' + ti + '" value="' + esc(t.nome) + '"></label></div>' +
+      return '<section class="tred"><div class="tred-ord"><b>Treino ' + (ti + 1) + '</b><span class="mov"><button type="button" data-act="sobet" data-ti="' + ti + '" aria-label="Subir treino"' + (ti ? '' : ' disabled') + '>↑</button><button type="button" data-act="descet" data-ti="' + ti + '" aria-label="Descer treino"' + (ti < a.treinos.length - 1 ? '' : ' disabled') + '>↓</button></span></div>' +
+        '<div class="tred-h"><label class="fl">Dia<input class="f" data-f="dia" data-ti="' + ti + '" value="' + esc(t.dia) + '"></label><label class="fl">Nome do treino<input class="f" data-f="tn" data-ti="' + ti + '" value="' + esc(t.nome) + '"></label></div>' +
         t.ex.map(function(e, ei){
           var at = ' data-ti="' + ti + '" data-ei="' + ei + '"', chave = ti + ":" + ei;
           // Ligação visual com o exercício de cima, quando ele é conjugado com este.
           var lig = ei > 0 && t.ex[ei - 1].conjugado ? '<div class="conjlig">🔗 conjugado</div>' : '';
           if (EDABERTO !== chave) {
-            return lig + '<button type="button" class="exed fechado" data-act="editex"' + at + '><span class="exnum">' + (ei + 1) + '</span>' +
-              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + (e.obs ? ' · 📝' : '') + '</span></span><span class="seta">✎</span></button>';
+            return lig + '<div class="exed fechado"><button type="button" class="exabre" data-act="editex"' + at + '><span class="exnum">' + (ei + 1) + '</span>' +
+              '<span class="exres"><b>' + (esc(e.nome) || '<i>Sem nome</i>') + '</b><span>' + (e.grupo ? esc(e.grupo) + ' · ' : '') + esc(resumoSeries(e.series_cfg)) + (descansoDe(e) ? ' · ⏱\u00a0' + fmtTempo(descansoDe(e)) : '') + (e.obs ? ' · 📝' : '') + '</span></span><span class="seta">✎</span></button>' +
+              '<span class="mov"><button type="button" data-act="sobe"' + at + ' aria-label="Subir exercício"' + (ei ? '' : ' disabled') + '>↑</button><button type="button" data-act="desce"' + at + ' aria-label="Descer exercício"' + (ei < t.ex.length - 1 ? '' : ' disabled') + '>↓</button></span></div>';
           }
           return lig + '<div class="exed aberto"><div class="exed-top"><span class="exnum">' + (ei + 1) + '</span>' +
             '<input class="f nm" placeholder="Digite para buscar o exercício" autocomplete="off" data-f="en"' + at + ' value="' + esc(e.nome) + '"></div>' +
@@ -437,7 +439,8 @@ app.addEventListener("click", async function(ev){
   else if (a === "editex") { EDABERTO = ti + ":" + ei; redraw(); }
   else if (a === "fechaex") { EDABERTO = null; viewEditor(); }
   else if (a === "dels") { EDIT.treinos[ti].ex[ei].series_cfg.splice(+b.dataset.si, 1); redraw(); }
-  else if (a === "sobe" || a === "desce") { var lx = EDIT.treinos[ti].ex, nj = ei + (a === "sobe" ? -1 : 1); lx.splice(nj, 0, lx.splice(ei, 1)[0]); EDABERTO = ti + ":" + nj; redraw(); }
+  else if (a === "sobe" || a === "desce") { var lx = EDIT.treinos[ti].ex, nj = ei + (a === "sobe" ? -1 : 1); lx.splice(nj, 0, lx.splice(ei, 1)[0]); if (EDABERTO === ti + ":" + ei) EDABERTO = ti + ":" + nj; else EDABERTO = null; redraw(); }
+  else if (a === "sobet" || a === "descet") { var lt = EDIT.treinos, nt = ti + (a === "sobet" ? -1 : 1); lt.splice(nt, 0, lt.splice(ti, 1)[0]); EDABERTO = null; redraw(); }
   else if (a === "dele") { EDIT.treinos[ti].ex.splice(ei, 1); EDABERTO = null; redraw(); }
   else if (a === "addt") { EDIT.treinos.push({id:novoId(), dia:"Dia", nome:"Novo treino", ex:[]}); redraw(); }
   else if (a === "delt") { if (armed(b, "Toque de novo para remover")) { EDIT.treinos.splice(ti, 1); redraw(); } }
