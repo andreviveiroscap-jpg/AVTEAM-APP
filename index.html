@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#2f0f5a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=11">
+<link rel="stylesheet" href="estilo.css?v=12">
 </head><body><div id="app"></div><div class="toast" id="toast" hidden></div>
 <div class="timer" id="timer" hidden role="timer" aria-live="polite">
   <div class="tm-txt"><span class="tm-rot" id="tmrot">Descanso</span><span class="tm-num" id="tmnum">1:30</span></div>
@@ -17,9 +17,9 @@
   <div class="tm-acts"><button type="button" data-tm="-15">−15s</button><button type="button" data-tm="15">+15s</button><button type="button" data-tm="pular" id="tmpular">Pular</button></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=11"></script>
+<script src="config.js?v=12"></script>
 <script>var AV_ALUNO = true;</script>
-<script src="comum.js?v=11"></script>
+<script src="comum.js?v=12"></script>
 <script>
 // Tela do aluno. Acesso pelo link com o código: .../#CODIGO
 var CODE = "", DADOS = null, W = null, CUR = {}, PEND = [], ENVIANDO = false, OFFLINE = false;
@@ -245,6 +245,8 @@ function progress(){
   $("grp").innerHTML = grpTxt().map(function(s){ return "<span>" + esc(s) + "</span>"; }).join("");
 }
 
+// Marca a hora em que o aluno começou o treino (para o tempo da arte final).
+function marcaInicio(){ var t = CUR[W.id] = CUR[W.id] || {}; if (!t.__inicio) t.__inicio = Date.now(); }
 function finalizar(){
   var series = [];
   W.ex.forEach(function(e){
@@ -257,12 +259,119 @@ function finalizar(){
     if (n) series.push({exercicio_id:e.id, nota:n});
   });
   if (!series.some(function(s){ return s.numero; })) { toast("Preencha a carga ou as repetições de pelo menos uma série."); return; }
+  var arte = dadosArte(series);
   PEND.push({id:novoId(), treino:W.id, data:new Date().toISOString(), series:series});
   guarda(kPend(), PEND);
   aplicaPendentes(DADOS);
   delete CUR[W.id]; salvaRascunho(); ABERTO = null; paraDescanso();
   viewAluno(); window.scrollTo(0, 0);
   enviarPendentes(true);
+  mostraArte(arte);
+}
+
+// ---------- Arte de treino concluído (para o story) ----------
+function dadosArte(series){
+  var feitos = W.ex.filter(function(e){ return series.some(function(s){ return s.numero && s.exercicio_id === e.id; }); });
+  var ini = (CUR[W.id] || {}).__inicio, min = ini ? Math.max(1, Math.round((Date.now() - ini) / 60000)) : null;
+  // "Treino D: Superior 2" vira rótulo "TREINO D" e título "SUPERIOR 2".
+  var m = /^\s*(treino\s+\S+)\s*[:\-–]\s*(.+)$/i.exec(W.nome || "");
+  var hoje = new Date();
+  var data = (hoje.toLocaleDateString("pt-BR", {weekday:"short"}).replace(".", "").slice(0, 3) + " · " + hoje.getDate() + " " +
+    hoje.toLocaleDateString("pt-BR", {month:"short"}).replace(".", "")).toUpperCase();
+  return {
+    rotulo: data + " · " + (m ? m[1] : W.dia || "").toUpperCase(),
+    titulo: (m ? m[2] : W.nome || W.dia || "Treino").toUpperCase(),
+    exercicios: feitos.map(function(e){ return e.nome; }),
+    series: series.filter(function(s){ return s.numero; }).length,
+    minutos: min
+  };
+}
+var LOGO_IMG = null;
+function carregaLogo(){
+  return new Promise(function(ok){
+    if (LOGO_IMG) return ok(LOGO_IMG);
+    var i = new Image(); i.onload = function(){ LOGO_IMG = i; ok(i); }; i.onerror = function(){ ok(null); }; i.src = "logo.png?v=2";
+  });
+}
+// Desenha a arte num canvas de 1080 px de largura. fundo: "transparente" ou "roxo".
+async function desenhaArte(d, fundo){
+  try { await Promise.all([document.fonts.load('120px "Bebas Neue"'), document.fonts.load('500 40px Barlow'), document.fonts.load('600 34px Barlow')]); } catch (e) {}
+  var logo = await carregaLogo();
+  var W0 = 1080, P = 80, lista = d.exercicios.slice(0, 9), resto = d.exercicios.length - lista.length;
+  var cv = document.createElement("canvas"), c = cv.getContext("2d");
+  // Título grande: diminui a letra até caber na largura (só corta se ficar pequeno demais).
+  var tam = 130, t = d.titulo;
+  do { c.font = tam + 'px "Bebas Neue", Impact, sans-serif'; } while (c.measureText(t).width > W0 - 2 * P && (tam -= 6) >= 64);
+  while (c.measureText(t).width > W0 - 2 * P && t.length > 4) t = t.slice(0, -2) + "…";
+  var H = P + 50 + tam + 10 + (lista.length + (resto > 0 ? 1 : 0)) * 64 + 50 + 190 + P;
+  cv.width = W0; cv.height = H; // muda o tamanho e limpa o canvas
+  if (fundo === "roxo") {
+    var g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#3a1470"); g.addColorStop(1, "#1b0838");
+    c.fillStyle = g; c.beginPath(); c.roundRect ? c.roundRect(0, 0, W0, H, 48) : c.rect(0, 0, W0, H); c.fill();
+  } else { c.shadowColor = "rgba(0,0,0,.55)"; c.shadowBlur = 14; c.shadowOffsetY = 2; }
+  c.fillStyle = "#fff"; c.textBaseline = "alphabetic";
+  var y = P + 34;
+  c.font = '600 34px Barlow, sans-serif'; if ("letterSpacing" in c) c.letterSpacing = "6px";
+  c.globalAlpha = .85; c.fillText(d.rotulo, P, y); c.globalAlpha = 1;
+  if ("letterSpacing" in c) c.letterSpacing = "2px";
+  c.font = tam + 'px "Bebas Neue", Impact, sans-serif';
+  y += tam + 10; c.fillText(t, P, y);
+  if ("letterSpacing" in c) c.letterSpacing = "0px";
+  c.font = '500 40px Barlow, sans-serif'; y += 20;
+  lista.forEach(function(n){
+    y += 64;
+    c.beginPath(); c.arc(P + 18, y - 13, 18, 0, 2 * Math.PI); c.fill();
+    c.save(); c.shadowColor = "transparent"; c.strokeStyle = fundo === "roxo" ? "#2f0f5a" : "#222"; c.lineWidth = 5; c.lineCap = "round"; c.lineJoin = "round";
+    c.beginPath(); c.moveTo(P + 9, y - 13); c.lineTo(P + 16, y - 6); c.lineTo(P + 28, y - 20); c.stroke(); c.restore();
+    var nn = n; while (c.measureText(nn).width > W0 - 2 * P - 60 && nn.length > 4) nn = nn.slice(0, -2) + "…";
+    c.fillText(nn, P + 56, y);
+  });
+  if (resto > 0) { y += 64; c.globalAlpha = .8; c.fillText("+ " + resto + " exercício(s)", P + 56, y); c.globalAlpha = 1; }
+  y += 50; c.fillRect(P, y, W0 - 2 * P - 230, 3);
+  var stats = [[d.minutos != null ? d.minutos : "–", d.minutos != null ? "min" : "", "tempo"], [d.series, "", "séries"], [d.exercicios.length, "", "exercícios"]];
+  var x = P; y += 120;
+  stats.forEach(function(s){
+    c.font = '110px "Bebas Neue", Impact, sans-serif'; c.fillText(String(s[0]), x, y);
+    var w = c.measureText(String(s[0])).width;
+    if (s[1]) { c.font = '50px "Bebas Neue", Impact, sans-serif'; c.fillText(s[1], x + w + 8, y); w += c.measureText(s[1]).width + 8; }
+    c.font = '500 30px Barlow, sans-serif'; c.globalAlpha = .85; c.fillText(s[2], x, y + 44); c.globalAlpha = 1;
+    x += Math.max(w, c.measureText(s[2]).width) + 70;
+  });
+  if (logo) {
+    var lw = 170, lh = lw * logo.height / logo.width, lx = W0 - P - lw - 20, ly = H - P - lh - 20;
+    c.save(); c.shadowColor = "transparent"; c.fillStyle = "#fff";
+    c.beginPath(); c.roundRect ? c.roundRect(lx - 16, ly - 16, lw + 32, lh + 32, 28) : c.rect(lx - 16, ly - 16, lw + 32, lh + 32); c.fill();
+    c.drawImage(logo, lx, ly, lw, lh); c.restore();
+  }
+  return cv;
+}
+async function mostraArte(d){
+  var o = document.createElement("div"); o.className = "folha arte"; o.id = "arte";
+  o.innerHTML = '<div class="folha-top"><span>Treino concluído 💪</span><button type="button" id="fecharte">✕ Fechar</button></div>' +
+    '<div class="folha-corpo"><div class="per arte-fundo"><button type="button" data-fundo="transparente" aria-pressed="true">Fundo transparente</button><button type="button" data-fundo="roxo" aria-pressed="false">Fundo roxo</button></div>' +
+    '<div class="arte-prev" id="arteprev"></div>' +
+    '<button class="big fim2" type="button" id="compartilha">Compartilhar / salvar imagem</button>' +
+    '<p class="folha-leg">Com fundo transparente, coloque a arte por cima de uma foto no story.</p></div>';
+  document.body.appendChild(o); document.body.classList.add("sem-rolagem");
+  var fundo = "transparente", cv = null;
+  async function desenha(){ cv = await desenhaArte(d, fundo); var pv = $("arteprev"); pv.innerHTML = ""; pv.appendChild(cv); }
+  await desenha();
+  o.addEventListener("click", async function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    if (b.id === "fecharte") { o.remove(); document.body.classList.remove("sem-rolagem"); return; }
+    if (b.dataset.fundo) { fundo = b.dataset.fundo; o.querySelectorAll("[data-fundo]").forEach(function(x){ x.setAttribute("aria-pressed", x === b); }); await desenha(); return; }
+    if (b.id === "compartilha") compartilhaArte(cv);
+  });
+}
+function compartilhaArte(cv){
+  cv.toBlob(function(blob){
+    if (!blob) return;
+    var f = new File([blob], "treino-avteam.png", {type:"image/png"});
+    if (navigator.canShare && navigator.canShare({files:[f]})) { navigator.share({files:[f]}).catch(function(){}); return; }
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "treino-avteam.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("Imagem salva. Abra no Instagram para postar.");
+  }, "image/png");
 }
 async function enviarPendentes(avisar){
   if (ENVIANDO || !PEND.length) return;
@@ -292,14 +401,14 @@ app.addEventListener("input", function(ev){
   var t = ev.target;
   if (t.classList.contains("nota") && W) { notas()[t.dataset.e] = t.value; salvaRascunho(); return; }
   var r = t.closest(".row"); if (!r || !W) return;
-  var x = sets(W.ex[+r.dataset.i])[+r.dataset.j];
+  var x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; marcaInicio();
   if (t.classList.contains("kg")) x.kg = t.value.replace(",", "."); else if (t.classList.contains("rp")) x.reps = t.value;
   salvaRascunho(); progress();
 });
 app.addEventListener("click", function(ev){
   var b = ev.target.closest("button"); if (!b) return;
   var a = b.dataset.act;
-  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); salvaRascunho(); progress();
+  if (b.classList.contains("chk")) { var r = b.closest(".row"), x = sets(W.ex[+r.dataset.i])[+r.dataset.j]; x.done = !x.done; r.classList.toggle("done", x.done); marcaInicio(); salvaRascunho(); progress();
     // No conjugado, o descanso só vem depois da série do último exercício do grupo.
     if (x.done) { var ei = +r.dataset.i; if (ei === fimGrupo(ei) && (proximo(ei) >= 0 || !grupoFeito(ei))) iniciaDescanso(descansoDe(W.ex[ei])); aposMarcar(ei); }
     return; }

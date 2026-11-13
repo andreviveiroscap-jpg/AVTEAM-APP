@@ -12,7 +12,7 @@ var app = document.getElementById("app");
 // iPhone) pode guardar a versão antiga. Ao abrir ou voltar para o app,
 // compara com versao.json e recarrega se houver versão nova.
 // Ao publicar uma mudança, aumente VERSAO aqui, em versao.json e no "?v=" das páginas.
-var VERSAO = 11;
+var VERSAO = 12;
 function confereVersao(){
   if (window.DIRTY) return; // não perde alterações não salvas do editor
   fetch("versao.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){
